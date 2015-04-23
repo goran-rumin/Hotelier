@@ -41,8 +41,12 @@ public class Server {
 	private PreparedStatement preparedStatement = null;
 	private static ResultSet resultSet = null;
 	
+	public static String PATH = "D:/FER/Knjige/6. semestar/Završni rad/Spark public folder";
+	
 	
 	public static void main(String[] args) throws SQLException {
+		
+		Spark.externalStaticFileLocation(PATH);
 		
 		Security.enableCORS("*", "*", "*");
 		
@@ -58,8 +62,14 @@ public class Server {
 			e1.printStackTrace();
 		}
 		
+		statement.execute("SET NAMES utf8;");
+		statement.execute("SET CHARSET utf8;");
+		//ResultSet rezultati = statement.executeQuery("SHOW VARIABLES LIKE 'character//_set//_%';");
+		
+		
 		Security sec = new Security();
 		User user = new User(connect, sec);
+		Accomodation accm = new Accomodation(connect, sec);
 		Country country = new Country(connect);
 		
         get("/", (request, response) -> {
@@ -157,6 +167,7 @@ public class Server {
        		String phone = request.queryParams("phone");
        		String email = request.queryParams("email");
        		String date_birth = request.queryParams("date_birth");
+       		//System.out.println(""+username+" "+password+" "+name+" "+surname+" "+oib+" "+address+" "+city+" "+country_id+" "+phone+" "+email+" "+date_birth);
         	odgovor = user.edit(SHA1key, username, password, name, surname, oib, address, city, country_id, phone, email, date_birth);
             return odgovor;
         });
@@ -172,6 +183,17 @@ public class Server {
             return odgovor;
         });
        	
+       	get("/user/stats", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/user/stats", (request, response) -> {
+        	String odgovor="";
+        	String SHA1key = request.queryParams("session_id");
+        	odgovor = user.stats(SHA1key);
+            return odgovor;
+        });
+       	
        	//COUNTRY dio
        	get("/country/all", (request, response) -> {
         	return country.all();
@@ -181,6 +203,17 @@ public class Server {
         	return country.all();
         });
        	
+       	//ACCOMODATION dio
+       	get("/accommodation/all/guest", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/accommodation/all/guest", (request, response) -> {
+        	String odgovor="";
+        	String index = request.queryParams("index");
+        	odgovor = accm.guestAll(index);
+            return odgovor;
+        });
     }
 	
 	

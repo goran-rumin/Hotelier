@@ -1,0 +1,181 @@
+<div class="row">
+	<div class="col-md-9 panel">
+		<h2>My Data</h2><hr/>
+		<form class="form-horizontal" role="form">
+  			<div id="username_group" class="form-group has-feedback">
+  	  			<label class="control-label col-sm-2" for="username">Username:</label>
+    			<div class="col-sm-10" >
+      				<input id="username" type="text" class="form-control" placeholder="Enter username" 
+      				ng-model="data.username" oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Userame can't be empty">
+      				<span id="username_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
+      				<span id="username_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
+    			</div>
+  			</div>
+  			<div id="name_group" class="form-group has-feedback">
+    			<label class="control-label col-sm-2" for="name">Name:</label>
+    			<div class="col-sm-10"> 
+      				<input id="name" type="text" class="form-control" placeholder="Enter your name" 
+      				ng-model="data.name" oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Name can't be empty">
+      				<span id="name_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
+      				<span id="name_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
+    			</div>
+  			</div>
+  			<div id="surname_group" class="form-group has-feedback">
+    			<label class="control-label col-sm-2" for="surname">Surname:</label>
+    			<div class="col-sm-10"> 
+      				<input id="surname" type="text" class="form-control" placeholder="Enter your surname" 
+      				ng-model="data.surname" oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Surname can't be empty">
+      				<span id="surname_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
+      				<span id="surname_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
+    			</div>
+  			</div>
+  			<div id="oib_group" class="form-group has-feedback" ng-show="data.type=='Owner'">
+    			<label class="control-label col-sm-2" for="oib">OIB:</label>
+    			<div class="col-sm-10"> 
+      				<input id="oib" type="text" class="form-control" placeholder="Enter your OIB" ng-model="data.oib"
+      				oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="OIB contains 11 digits">
+      				<span id="oib_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
+      				<span id="oib_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
+    			</div>
+  			</div>
+  			<div class="form-group has-feedback">
+    			<label class="control-label col-sm-2" for="address">Address:</label>
+    			<div class="col-sm-10"> 
+      				<input id="address" type="text" class="form-control" placeholder="Enter your address" ng-model="data.address">
+    			</div>
+  			</div>
+  			<div class="form-group has-feedback">
+    			<label class="control-label col-sm-2" for="city">City:</label>
+    			<div class="col-sm-10"> 
+      				<input id="city" type="text" class="form-control" placeholder="Enter city name" ng-model="data.city">
+    			</div>
+  			</div>
+  			<div class="form-group">
+  				<label class="control-label col-sm-2" for="country">Country:</label>
+    			<div class="col-sm-10"> 
+      				<select id="country" class="form-control" ng-model="data.country_id" ng-options="item.id as item.name for item in countries">
+            		</select>
+    			</div>
+  			</div>
+  			<div class="form-group has-feedback">
+    			<label class="control-label col-sm-2" for="phone">Phone:</label>
+    			<div class="col-sm-10"> 
+      				<input id="phone" type="text" class="form-control" placeholder="Enter your phone number" ng-model="data.phone">
+    			</div>
+  			</div>
+  			<div id="email_group" class="form-group has-feedback">
+    			<label class="control-label col-sm-2" for="email">Email:</label>
+    			<div class="col-sm-10"> 
+      				<input id="email" type="email" class="form-control" placeholder="name@domain.com" ng-model="data.email"
+      				oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Enter valid e-mail">
+      				<span id="email_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
+      				<span id="email_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
+    			</div>
+  			</div>
+  			<div id="date_birth_group" class="form-group has-feedback">
+    			<label class="control-label col-sm-2" for="date_birth">Date of birth:</label>
+    			<div class="col-sm-10"> 
+      				<input id="date_birth" type="date" class="form-control" placeholder="YYYY-mm-dd" ng-model="data.date_birth"
+      				oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Enter valid date">
+      				<span id="date_birth_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
+      				<span id="date_birth_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
+    			</div>
+  			</div>
+  			<div id="password_group" class="form-group has-feedback" ng-show="edit_password">
+    			<label class="control-label col-sm-2" for="password">New password:</label>
+    			<div class="col-sm-10"> 
+      				<input id="password" type="password" class="form-control" placeholder="Enter at least 6 characters"
+      				oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Enter valid password" ng-model="password">
+      				<span id="password_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
+      				<span id="password_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
+    			</div>
+  			</div>
+  			<div class="form-group" ng-show="!edit_password"> 
+    			<div class="col-sm-offset-2 col-sm-10">
+      				<button class="btn btn-warning" ng-click="edit_password=true">Edit password</button>
+    			</div>
+  			</div>
+  			<hr/>
+  			<div class="form-group"> 
+    			<div class="col-sm-offset-2 col-sm-10">
+      				<button id="submit" class="btn btn-primary" ng-click="edit()">Save</button>
+    			</div>
+  			</div>
+		</form>
+		<div id="save_message" class="alert {{message_class}} fade in" ng-show="message!=null">
+    		<a href="" class="close" data-dismiss="alert">&times;</a>
+    		{{message}}
+		</div>
+	</div>
+	<div class="col-md-3 panel">
+		<h4>Stats</h4>
+		<hr/>
+		<p>Last activity: {{stats.last_activity}}</p>
+	</div>
+</div>
+<script>
+	var wrong_fields = [];
+	function check(input){   //TODO provjera duljine polja, mijenjanje boje alert poruke
+		var valid = false;
+		if(input.type=='text'){
+			if(input.id=='date_birth'){   //firefox, IE treba rucno provjeriti
+				var time = Date.parse(input.value);
+				if(isNaN(time)){
+					valid=false;
+				}
+				else{
+					valid=true;
+				}	
+			}
+			else if(input.id=='oib'){ 
+				var pattern = new RegExp("^[0-9]{11}$");
+				valid = pattern.test(input.value);
+			}
+			else if(input.value.length>0){
+				valid=true;
+			}
+			else{
+				valid=false;
+			}
+		}
+		else if(input.type=='email'){
+			var pattern = new RegExp("[A-Za-z]+@[A-Za-z]+\\.[a-z]+");
+			valid = pattern.test(input.value);
+		}
+		else if(input.type=='date'){
+			valid = true;
+		}
+		else if(input.type=='password'){
+			if(input.value.length>6){
+				valid=true;
+			}
+			else{
+				valid=false;
+			}
+		}
+		if(valid){
+			$('#'+input.id+'_group').removeClass('has-error');
+			$('#'+input.id+'_span_bad').css('visibility','hidden');
+			$('#'+input.id+'_group').addClass('has-success');
+			$('#'+input.id+'_span_ok').css('visibility','visible');
+			$('#'+input.id).tooltip('disable');
+			if(wrong_fields.indexOf(input.id)!=-1){
+				wrong_fields.splice(wrong_fields.indexOf(input.id),1);
+				if(wrong_fields.length==0){
+					$("#submit").removeAttr('disabled');
+				}
+			}
+		}
+		else{
+			$('#'+input.id+'_group').removeClass('has-success');
+			$('#'+input.id+'_span_ok').css('visibility','hidden');
+			$('#'+input.id+'_group').addClass('has-error');
+			$('#'+input.id+'_span_bad').css('visibility','visible');
+			$('#'+input.id).tooltip('enable');
+			$("#submit").attr('disabled','disabled');
+			if(wrong_fields.indexOf(input.id)==-1){
+				wrong_fields.push(input.id);
+			}
+		}
+	}
+</script>

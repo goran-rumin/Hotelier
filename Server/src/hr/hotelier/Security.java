@@ -63,6 +63,19 @@ public class Security {
 		return false;
 	}
 	
+	/**
+	 * Funkcija koja produzuje trajanje kljuca
+	 * @param SHA1key - kljuc korisnika
+	 * @return da li je sesija uspijesno azurirana
+	 */
+	public boolean updateSession(String SHA1key){
+		if(sessions.containsKey(SHA1key)){
+    		lease.put(SHA1key,new Date());
+    		return true;
+		}
+		return false;
+	}
+	
 	public int getSession(String SHA1key){
 		if(sessions.containsKey(SHA1key)){
     		return sessions.get(SHA1key);

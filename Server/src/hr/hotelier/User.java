@@ -23,7 +23,9 @@ public class User {
 	private PreparedStatement stat_register_guest;
 	private PreparedStatement stat_register_owner;
 	private PreparedStatement stat_edit;
+	private PreparedStatement stat_edit_psw;
 	private PreparedStatement stat_data;
+	private PreparedStatement stat_stats;
 	
 	public User(Connection connection, Security security) throws SQLException{
 		connect = connection;
@@ -33,8 +35,10 @@ public class User {
 		stat_register_check = connect.prepareStatement("SELECT id FROM user WHERE username=?;");
 		stat_register_guest = connect.prepareStatement("INSERT INTO user (username, password, name, surname, address, city, country_id, phone, email, date_birth, user_type_id) VALUES (?,?,?,?,?,?,?,?,?,?,1);");
 		stat_register_owner = connect.prepareStatement("INSERT INTO user (username, password, name, surname, oib, address, city, country_id, phone, email, date_birth, user_type_id) VALUES (?,?,?,?,?,?,?,?,?,?,?,2);");
-		stat_edit = connect.prepareStatement("UPDATE user SET username=?, password=?, name=?, surname=?, oib=?, address=?, city=?, country_id=?, phone=?, email=?, date_birth=? WHERE id=?;");
+		stat_edit = connect.prepareStatement("UPDATE user SET username=?, name=?, surname=?, oib=?, address=?, city=?, country_id=?, phone=?, email=?, date_birth=? WHERE id=?;");
+		stat_edit_psw = connect.prepareStatement("UPDATE user SET password=? WHERE id=?;");
 		stat_data = connect.prepareStatement("SELECT username, user.name, surname, oib, address, city, country_id, phone, email, date_birth, user_type.name FROM user JOIN user_type ON user.user_type_id=user_type.id WHERE user.id=?;");
+		stat_stats = connect.prepareStatement("SELECT last_activity FROM user WHERE id=?;");
 	}
 	
 	/**
@@ -125,7 +129,6 @@ public class User {
 			odgovor = Security.prepareErrorJson(4, Security.ERROR4);
     		return odgovor;
 		}
-		
 		int country = Integer.parseInt(country_id);
 		//Date date = new Date(DateFormat.getDateInstance().parse(date_birth).getTime());
 		stat_register_guest.setString(1, username);
@@ -193,28 +196,43 @@ public class User {
 		String odgovor="";
 		JSONObject main = new JSONObject();
 		JSONObject data = new JSONObject();
-		if(!Security.areParamsOK(username, password, name, surname, oib, country_id, email, date_birth)){
-    		odgovor = Security.prepareErrorJson(5, Security.ERROR5);
-    		return odgovor;
-    	}
 		int id = sec.getSession(SHA1key);
     	if(id==-1){
     		odgovor=Security.prepareErrorJson(1,Security.ERROR1);
     		return odgovor;
     	}
+    	sec.updateSession(SHA1key);
+    	if(!Security.areParamsOK(username, password, name, surname, oib, country_id, email, date_birth)){
+    		odgovor = Security.prepareErrorJson(5, Security.ERROR5);
+    		return odgovor;
+    	}
+		stat_register_check.setString(1, username);
+		ResultSet rezultati = stat_register_check.executeQuery();
+		if(rezultati.first()){
+			if(!rezultati.getString("id").equals(""+id)){
+				odgovor = Security.prepareErrorJson(4, Security.ERROR4);
+				return odgovor;
+			}
+		}
+		if(oib.equals("N/A"))
+			oib=null;
+		if(!password.equals("N/A")){
+			stat_edit_psw.setString(1, password);
+			stat_edit_psw.setInt(2, id);
+			stat_edit_psw.executeUpdate();
+		}
 		int country = Integer.parseInt(country_id);
 		stat_edit.setString(1, username);
-		stat_edit.setString(2, password);
-		stat_edit.setString(3, name);
-		stat_edit.setString(4, surname);
-		stat_edit.setString(5, oib);
-		stat_edit.setString(6, address);
-		stat_edit.setString(7, city);
-		stat_edit.setInt(8, country);
-		stat_edit.setString(9, phone);
-		stat_edit.setString(10, email);
-		stat_edit.setString(11, date_birth);
-		stat_edit.setInt(12, id);
+		stat_edit.setString(2, name);
+		stat_edit.setString(3, surname);
+		stat_edit.setString(4, oib);
+		stat_edit.setString(5, address);
+		stat_edit.setString(6, city);
+		stat_edit.setInt(7, country);
+		stat_edit.setString(8, phone);
+		stat_edit.setString(9, email);
+		stat_edit.setString(10, date_birth);
+		stat_edit.setInt(11, id);
 		int status = stat_edit.executeUpdate();
 		if(status==1){
     		data.put("success", 1);
@@ -243,6 +261,7 @@ public class User {
     		odgovor=Security.prepareErrorJson(1,Security.ERROR1);
     		return odgovor;
     	}
+    	sec.updateSession(SHA1key);
     	stat_data.setInt(1, id);
     	ResultSet rezultati = stat_data.executeQuery();
     	if(rezultati.first()){
@@ -252,7 +271,7 @@ public class User {
     		String oib = rezultati.getString("oib");
     		String address = rezultati.getString("address");
     		String city = rezultati.getString("city");
-    		String country_id = rezultati.getString("country_id");
+    		int country_id = rezultati.getInt("country_id");
     		String phone = rezultati.getString("phone");
     		String email = rezultati.getString("email");
     		String date_birth = rezultati.getString("date_birth");
@@ -270,6 +289,29 @@ public class User {
     		data.put("email", email);
     		data.put("date_birth", date_birth);
     		data.put("type", type);
+    		main.put("data", data);
+    		odgovor=main.toString();
+    	}
+    	rezultati.close();
+		return odgovor;
+	}
+	public String stats(String SHA1key) throws Exception{
+		String odgovor="";
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+    	
+		int id = sec.getSession(SHA1key);
+    	if(id==-1){
+    		odgovor=Security.prepareErrorJson(1,Security.ERROR1);
+    		return odgovor;
+    	}
+    	sec.updateSession(SHA1key);
+    	stat_stats.setInt(1, id);
+    	ResultSet rezultati = stat_stats.executeQuery();
+    	if(rezultati.first()){
+    		//dodati jos statova kasnije
+    		String last_activity = rezultati.getString("last_activity");
+    		data.put("last_activity", last_activity);
     		main.put("data", data);
     		odgovor=main.toString();
     	}
