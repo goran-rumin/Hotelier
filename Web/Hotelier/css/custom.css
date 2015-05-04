@@ -1,5 +1,5 @@
 body {
-	background-image: url(http://globe-views.com/dcim/dreams/sea/sea-05.jpg);
+	background: url(http://globe-views.com/dcim/dreams/sea/sea-05.jpg) no-repeat top center fixed;
   }
 .navbar-custom {
   background-color: #242682;

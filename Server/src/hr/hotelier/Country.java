@@ -21,7 +21,7 @@ public class Country {
 	
 	
 	public String all() throws Exception{
-		String odgovor="", name;
+		String name;
 		int id;
 		JSONObject main = new JSONObject();
 		JSONArray data = new JSONArray();
@@ -36,7 +36,6 @@ public class Country {
 			data.put(country);
 		}
 		main.put("data", data);
-		odgovor = main.toString();
-		return odgovor;
+		return main.toString();
 	}
 }

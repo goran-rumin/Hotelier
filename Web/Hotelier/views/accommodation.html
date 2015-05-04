@@ -1,0 +1,184 @@
+<div class="row">
+	<div class="col-md-9 panel">
+		<h3>{{data.acc_name}} - {{data.obj_name}}</h3>
+		<hr/>
+		<div class="row" style="margin-bottom:75px">
+			<div class="col-md-10">
+				<p>{{data.obj_desc}} <br/><br/> {{data.acc_desc}}</p>
+			</div>
+			<div class="col-md-2">
+				<h4>Rating:<br/>{{data.rating}}</h4>
+			</div>
+		</div>
+		<h4>Gallery</h4><hr/>
+		<div class="row" ng-repeat="subimages in data.images">
+			<div class="col-md-2" ng-repeat="image in subimages">
+				<a class="galerija img-thumbnail" rel="grupa" href="{{PATH_SMALL+image}}"><img src="{{PATH+image}}" alt="" width="100%"/></a>
+			</div>
+		</div>
+		<div style="margin-bottom:75px"></div>
+		<h4>About</h4><hr/>
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-bordered" style="text-align: center; table-layout: fixed">
+					<tr>
+						<td class="bg-info">
+							Accommodation type - People Min/Max
+						</td>
+						<td class="bg-info">
+							{{data.acc_type}} - {{data.ppl_num_min}}/{{data.ppl_num_max}}
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							Category
+						</td>
+						<td class="bg-info">
+							{{data.category}}*
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							Beach distance (meters)
+						</td>
+						<td class="bg-info">
+							{{data.beach_distance}}
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							Surface (square meters)
+						</td>
+						<td class="bg-info">
+							{{data.surface}}
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							Sea view
+						</td>
+						<td class="bg-info">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true" ng-show="data.has_sea_view==1"></span>
+							<span class="glyphicon glyphicon-remove" aria-hidden="true" ng-show="data.has_sea_view==0"></span>
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							Air condition
+						</td>
+						<td class="bg-info">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true" ng-show="data.has_air_condition==1"></span>
+							<span class="glyphicon glyphicon-remove" aria-hidden="true" ng-show="data.has_air_condition==0"></span>
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							SAT/TV
+						</td>
+						<td class="bg-info">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true" ng-show="data.has_sattv==1"></span>
+							<span class="glyphicon glyphicon-remove" aria-hidden="true" ng-show="data.has_sattv==0"></span>
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							Balcony
+						</td>
+						<td class="bg-info">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true" ng-show="data.has_balcony==1"></span>
+							<span class="glyphicon glyphicon-remove" aria-hidden="true" ng-show="data.has_balcony==0"></span>
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							Breakfast
+						</td>
+						<td class="bg-info">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true" ng-show="data.has_breakfast==1"></span>
+							<span class="glyphicon glyphicon-remove" aria-hidden="true" ng-show="data.has_breakfast==0"></span>
+						</td>
+					</tr>
+					<tr>
+						<td class="bg-info">
+							Accepts pets
+						</td>
+						<td class="bg-info">
+							<span class="glyphicon glyphicon-ok" aria-hidden="true" ng-show="data.accepts_pets==1"></span>
+							<span class="glyphicon glyphicon-remove" aria-hidden="true" ng-show="data.accepts_pets==0"></span>
+						</td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div style="margin-bottom:75px"></div>
+		<h4>Availability</h4><hr/>
+		<div class="row" style="margin-top:20px">
+			<div class="col-md-4" ng-repeat="month in calendar track by $index" style="text-align: center">
+				<p>{{monthNames[currentMonth+$index]}}</p>
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<td>
+								Mo
+							</td>
+							<td>
+								Tu
+							</td>
+							<td>
+								We
+							</td>
+							<td>
+								Th
+							</td>
+							<td>
+								Fr
+							</td>
+							<td>
+								Sa
+							</td>
+							<td>
+								Su
+							</td>
+						</tr>
+					</thead>
+					<tr ng-repeat="week in month">
+						<td class="{{day.class}}" height="30px" ng-repeat="day in week"></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+		<div style="margin-bottom:75px"></div>
+		<h4>Comments</h4><hr/>
+		<div class="row">
+			<div class="col-md-12">
+				<div id="comment">
+					<textarea style="width: 100%; max-width: 100%" maxlength="1000" placeholder="{{comment_placeholder}}" ng-model="comment.text" ng-disabled="!can_comment"></textarea>
+					<p style="font-size: 19px">Rating: <span class="glyphicon {{stars[0]}}" aria-hidden="true" ng-mouseover="rate(0)"></span><span class="glyphicon {{stars[1]}}" aria-hidden="true" ng-mouseover="rate(1)"></span><span class="glyphicon {{stars[2]}}" aria-hidden="true" ng-mouseover="rate(2)"></span><span class="glyphicon {{stars[3]}}" aria-hidden="true" ng-mouseover="rate(3)"></span><span class="glyphicon {{stars[4]}}" aria-hidden="true" ng-mouseover="rate(4)"></span></p>
+					<button class="btn btn-primary" ng-disabled="!can_comment" ng-click="post()">Post comment</button>
+				</div>
+				<table class="table table-hover" style="margin-top: 20px">
+					<tbody>
+						<tr ng-repeat="comment in data.comments">
+							<td>
+								<span style="font-weight: bold">Name: {{comment.name}}</span><span style="float: right">{{comment.time}}</span><br/>
+								<p>Rating: <span class="glyphicon glyphicon-star" aria-hidden="true" ng-repeat="a in forLoop(comment.rating)"></span></p>
+								<p>{{comment.text}}</p>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-3" style="padding-left: 10px">
+		<div class="panel" style="padding: 10px">
+			<h4>Location</h4><hr/>
+			<p>Address: {{data.addr}}<br/>City: {{data.city}}<br/>Country: {{data.country}}<br/><br/></p>
+			<h4>Contact</h4><hr/>
+			<p>Name: {{data.owner_name}}<br/>Phone: {{data.owner_phone}}<br/>E-mail: {{data.owner_email}}<br/><br/></p>
+		</div>
+	</div>
+</div>
+<script>
+	$("a.galerija").fancybox();
+</script>

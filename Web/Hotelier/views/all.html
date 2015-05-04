@@ -17,37 +17,96 @@
 				</nav>
 			</div>
 		</div>
-		<div class="row" style="padding: 5px">
-			<div class="col-md-4" style="padding: 5px">
-				<a href="#" style="color: inherit;text-decoration: none;">
-					<div class="well" ng-click="proba()">
-						<img src="{{path}}{{accommodation[0].image}}" width="100%"/>
+		<div class="row">
+			<div class="col-md-12 alert alert-warning fade in" ng-show="accommodation.length==0">
+    			<p>No accommodation matches given criteria.</p>
+			</div>
+		</div>
+		<div class="row" style="padding: 5px" ng-repeat="app_list in accommodation">
+			<div class="col-md-4" style="padding: 5px" ng-repeat="app in app_list">
+				<a href="#/accm/{{app.acc_id}}" style="color: inherit;text-decoration: none;">
+					<div class="well">
+						<img ng-src="{{path}}{{app.image}}" width="100%"/>
 						<hr/>
-						<h3>{{accommodation[0].name}}</h3>
+						<h3>{{app.name}}</h3>
 						<ul class="list-group">
-    						<li class="list-group-item">Location: {{accommodation[0].city}}</li>
-    						<li class="list-group-item">Category: {{accommodation[0].category}}</li>
-    						<li class="list-group-item">Type: {{accommodation[0].acc_type_name}}</li>
-    						<li class="list-group-item">Price range: {{accommodation[0].min_price}} - {{accommodation[0].max_price}} €</li>
+							<li class="list-group-item">Object: {{app.object_name}}</li>
+    						<li class="list-group-item">Location: {{app.city}}</li>
+    						<li class="list-group-item">Category: {{app.category}}*</li>
+    						<li class="list-group-item">Type: {{app.acc_type_name}}</li>
+    						<li class="list-group-item">Rating: {{app.rating}}</li>
+    						<li class="list-group-item">Price range: {{app.min_price}} - {{app.max_price}} €</li>
   						</ul>
 					</div>
 				</a>
 			</div>
-			<div class="col-md-4" style="padding: 5px">
-				<div class="well" ng-click="proba()">
-					ajde
-				</div>
-			</div>
-			<div class="col-md-4" style="padding: 5px">
-				<div class="well" ng-click="proba()">
-					ajde
-				</div>
-			</div>
 		</div>
 	</div>
-	<div class="col-md-3 panel">
-		<h4>Search</h4>
-		<hr/>
-		<p>neki parametri</p>
+	<div class="col-md-3" style="padding-left: 10px">  <!-- TODO provjera unesenih vrijednosti u formi -->
+		<div class="panel" style="padding: 10px">
+			<h4>Search</h4>
+			<hr/>
+			<form role="form">
+  				<div class="form-group">
+    				<label for="acc_name">Accommodation name:</label>
+    				<input id="acc_name" type="text" class="form-control" ng-model="search_data.name">
+  				</div>
+  				<div class="form-group">
+    				<label for="object_name">Object name:</label>
+    				<input id="object_name" type="text" class="form-control" ng-model="search_data.obj_name">
+  				</div>
+  				<div class="form-group">
+    				<label for="category">Category:</label>
+    				<select id="category" class="form-control" ng-model="search_data.category">
+    					<option value="">All</option>
+  						<option value="1">1*</option>
+  						<option value="2">2*</option>
+  						<option value="3">3*</option>
+  						<option value="4">4*</option>
+  						<option value="5">5*</option>
+					</select>
+  				</div>
+  				<div class="form-group">
+    				<label for="atype">Accommodation type:{{a}}</label>
+    				<select id="atype" class="form-control" ng-init="search_data.atype=0" ng-model="search_data.atype" ng-options="item.id as item.name for item in atypes">
+					</select>
+  				</div>
+  				<div class="form-group well">
+    				<label for="price_min">Price min (€):</label>
+    				<input id="price_min" type="text" class="form-control" ng-model="search_data.price_min">
+    				<label for="price_max">Price max (€):</label>
+    				<input id="price_max" type="text" class="form-control" ng-model="search_data.price_max">
+  				</div>
+  				<div class="form-group well">
+    				<label for="free_from">Available from:</label>
+    				<input id="free_from" type="date" class="form-control" ng-model="search_data.date_from">
+    				<label for="free_until">Avilable until:</label>
+    				<input id="free_until" type="date" class="form-control" ng-model="search_data.date_until">
+  				</div>
+  				<div class="form-group">
+    				<label for="beach_distance">Beach distance:</label>
+    				<input id="beach_distance" type="text" class="form-control" ng-model="search_data.beach_distance">
+  				</div>
+  				<div class="checkbox">
+    				<label><input type="checkbox" ng-model="search_data.sea"> Sea view</label>
+  				</div>
+  				<div class="checkbox">
+    				<label><input type="checkbox" ng-model="search_data.air"> Air condition</label>
+  				</div>
+  				<div class="checkbox">
+    				<label><input type="checkbox" ng-model="search_data.sattv"> SAT/TV</label>
+  				</div>
+  				<div class="checkbox">
+    				<label><input type="checkbox" ng-model="search_data.balcony"> Balcony</label>
+  				</div>
+  				<div class="checkbox">
+    				<label><input type="checkbox" ng-model="search_data.breakfast"> Breakfast</label>
+  				</div>
+  				<div class="checkbox">
+    				<label><input type="checkbox" ng-model="search_data.pets"> Accepts pets</label>
+  				</div>
+  				<button class="btn btn-primary" ng-click="getData()">Search</button>
+			</form>
+		</div>
 	</div>
 </div>

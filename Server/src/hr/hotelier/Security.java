@@ -24,6 +24,8 @@ public class Security {
 	static String ERROR3 = "Not enough data to make registration";
 	static String ERROR4 = "User with this username exists";
 	static String ERROR5 = "Data edit for current data not possible";
+	static String ERROR6 = "Unknown accommodation ID";
+	static String ERROR7 = "Unknown comment data";
 	
 	public Security(){
 		sessions = new HashMap<String,Integer>();

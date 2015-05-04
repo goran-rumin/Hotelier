@@ -71,6 +71,8 @@ public class Server {
 		User user = new User(connect, sec);
 		Accomodation accm = new Accomodation(connect, sec);
 		Country country = new Country(connect);
+		AType atype = new AType(connect, sec);
+		Comment comment = new Comment(connect, sec);
 		
         get("/", (request, response) -> {
             return "Main site";
@@ -211,8 +213,61 @@ public class Server {
        	post("/accommodation/all/guest", (request, response) -> {
         	String odgovor="";
         	String index = request.queryParams("index");
-        	odgovor = accm.guestAll(index);
+        	String search_params = request.queryParams("search_params");
+        	odgovor = accm.guestAll(index, search_params);
             return odgovor;
+        });
+       	
+       	get("/accommodation/one/guest", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/accommodation/one/guest", (request, response) -> {
+        	String odgovor="";
+        	String acc_id = request.queryParams("acc_id");
+        	odgovor = accm.guestOne(acc_id);
+            return odgovor;
+        });
+       	
+       	//ACC_TYPE dio
+       	get("/atype/all", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/atype/all", (request, response) -> {
+            return atype.all();
+        });
+       	
+      //COMMENT dio
+       	get("/comment/all", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/comment/all", (request, response) -> {
+       		String acc_id = request.queryParams("acc_id");
+            return comment.all(acc_id);
+        });
+       	
+       	get("/comment/add", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/comment/add", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String acc_id = request.queryParams("acc_id");
+       		String text = request.queryParams("text");
+       		String rating = request.queryParams("rating");
+            return comment.add(session_id, acc_id, rating, text);
+        });
+       	
+       	get("/comment/my", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/comment/my", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String acc_id = request.queryParams("acc_id");
+            return comment.my(session_id, acc_id);
         });
     }
 	
