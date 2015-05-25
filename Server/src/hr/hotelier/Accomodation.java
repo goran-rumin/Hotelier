@@ -18,6 +18,7 @@ public class Accomodation {
 	private Security sec;
 	
 	private int BROJ_APP_PO_STRANICI = 9;
+	private double POLUMJER_PRETRAGE = 0.031726; //odgovara duljini 2.5 km
 	
 	private PreparedStatement stat_guest_all;
 	private PreparedStatement stat_pages_num;
@@ -25,6 +26,7 @@ public class Accomodation {
 	private PreparedStatement stat_guest_one_pictures;
 	private PreparedStatement stat_guest_one_comments;
 	private PreparedStatement stat_guest_one_rating;
+	private PreparedStatement stat_guest_one_prices;
 	
 	public Accomodation(Connection connection, Security security) throws SQLException{
 		connect = connection;
@@ -35,6 +37,12 @@ public class Accomodation {
 				+ "WHERE accommodation.name LIKE ? AND object.name LIKE ? AND category LIKE ? AND acc_type.id LIKE ? AND beach_distance<? "
 				+ "AND has_sea_view LIKE ? AND has_air_condition LIKE ? "
 				+ "AND has_sattv LIKE ? AND has_balcony LIKE ? AND has_breakfast LIKE ? AND accepts_pets LIKE ? "
+				+ "AND lat BETWEEN ? AND ? AND `long` BETWEEN ? AND ? "
+				+ "AND accommodation.id NOT IN (SELECT acc_id FROM reservation JOIN res_status ON res_status_id=res_status.id WHERE (name='Confirmed' OR name='Pending') AND ((date_from<=? AND date_until>=?) OR (date_from<=DATE_SUB(?,INTERVAL 1 DAY) AND date_until>=DATE_SUB(?,INTERVAL 1 DAY)) OR (date_from>? AND date_until<DATE_SUB(?,INTERVAL 1 DAY)))) " //kraj zeljenog boravka-1 jer se gledaju noæenja, a u bazi se kao zadnji dan sprema dan prije samog odlaska
+				+ "AND ( ? OR accommodation.id IN (SELECT acc_id FROM prices "
+				+ "WHERE acc_id IN (SELECT acc_id FROM prices WHERE date_from<=? AND date_until>=?) "
+				+ "AND acc_id IN (SELECT acc_id FROM prices WHERE date_from<=DATE_SUB(?,INTERVAL 1 DAY) "
+				+ "AND date_until>=DATE_SUB(?,INTERVAL 1 DAY)))) "  //ako se barem dio trazenog termina preklapa s cjenikom, apartman se prikazuje
 				+ "GROUP BY accommodation.id HAVING min_price>? AND max_price<? ORDER BY avg_rating DESC, min_price LIMIT ?,?;");
 		stat_pages_num = connect.prepareStatement("SELECT COUNT(id) AS count FROM accommodation;");
 		stat_guest_one = connect.prepareStatement("SELECT accommodation.id, accommodation.name, accommodation.desc, main_pic, object.name, object.desc, object.addr, object.city, "
@@ -50,6 +58,7 @@ public class Accomodation {
 		stat_guest_one_pictures = connect.prepareStatement("SELECT value FROM acc_data JOIN data_type ON data_type_id=data_type.id WHERE name='Image' AND acc_id=?;");
 		stat_guest_one_comments = connect.prepareStatement("SELECT text, rating, time, name, surname FROM comments JOIN user ON comments.user_id=user.id WHERE acc_id=? ORDER BY time DESC LIMIT 20;");
 		stat_guest_one_rating = connect.prepareStatement("SELECT ROUND(AVG(rating),2) AS rating FROM comments WHERE acc_id=?;");
+		stat_guest_one_prices = connect.prepareStatement("SELECT date_from, DATE_ADD(date_until,INTERVAL 1 DAY) as date_until, price FROM prices WHERE acc_id=? AND YEAR(date_from)=YEAR(NOW()) ORDER BY date_from;");
 	}
 	
 	public String guestAll(String index, String search_params) throws SQLException, JSONException{
@@ -63,10 +72,10 @@ public class Accomodation {
 		nizi = (visi-1)*BROJ_APP_PO_STRANICI;
 		visi*=BROJ_APP_PO_STRANICI;
 		
-		ResultSet rezultati = stat_pages_num.executeQuery();
-		rezultati.first();
-		int count = rezultati.getInt("count");
-		data.put("pages", count/BROJ_APP_PO_STRANICI+1);
+		//ResultSet rezultati = stat_pages_num.executeQuery();
+		//rezultati.first();
+		//int count = rezultati.getInt("count");
+		//data.put("pages", count/BROJ_APP_PO_STRANICI+1);
 		stat_guest_all.setString(1, params.get("acc_name"));
 		stat_guest_all.setString(2, params.get("obj_name"));
 		stat_guest_all.setString(3, params.get("category"));
@@ -78,14 +87,36 @@ public class Accomodation {
 		stat_guest_all.setString(9, params.get("balcony"));
 		stat_guest_all.setString(10, params.get("breakfast"));
 		stat_guest_all.setString(11, params.get("pets"));
-		stat_guest_all.setString(12, params.get("price_min"));
-		stat_guest_all.setString(13, params.get("price_max"));
-		stat_guest_all.setInt(14, nizi);
-		stat_guest_all.setInt(15, visi);
-		rezultati = stat_guest_all.executeQuery();
+		stat_guest_all.setString(12, params.get("lat_min"));
+		stat_guest_all.setString(13, params.get("lat_max"));
+		stat_guest_all.setString(14, params.get("long_min"));
+		stat_guest_all.setString(15, params.get("long_max"));
+		stat_guest_all.setString(16, params.get("date_from"));
+		stat_guest_all.setString(17, params.get("date_from"));
+		stat_guest_all.setString(18, params.get("date_until"));
+		stat_guest_all.setString(19, params.get("date_until"));
+		stat_guest_all.setString(20, params.get("date_from"));
+		stat_guest_all.setString(21, params.get("date_until"));
+		if(!params.get("date_from").equals("%%") && !params.get("date_until").equals("%%")){
+			stat_guest_all.setBoolean(22, false);
+		}  //ako su datumi definirani, onda se pretrazuje da li su smijestaji u ponudi
+		else{
+			stat_guest_all.setBoolean(22, true);
+		}
+		stat_guest_all.setString(23, params.get("date_from"));
+		stat_guest_all.setString(24, params.get("date_from"));
+		stat_guest_all.setString(25, params.get("date_until"));
+		stat_guest_all.setString(26, params.get("date_until"));
+		stat_guest_all.setString(27, params.get("price_min"));
+		stat_guest_all.setString(28, params.get("price_max"));
+		stat_guest_all.setInt(29, nizi);
+		stat_guest_all.setInt(30, visi);
+		ResultSet rezultati = stat_guest_all.executeQuery();
 		JSONArray acc = new JSONArray();
 		JSONObject acc_one;
+		int count = 0;
 		while(rezultati.next()){
+			count++;
 			acc_one = new JSONObject();
 			acc_one.put("acc_id", rezultati.getInt("accommodation.id"));
 			acc_one.put("name", rezultati.getString("accommodation.name"));
@@ -99,6 +130,7 @@ public class Accomodation {
 			acc_one.put("rating", rezultati.getString("avg_rating")==null ? "Not rated" : rezultati.getString("avg_rating"));
 			acc.put(acc_one);
 		}
+		data.put("pages", count/BROJ_APP_PO_STRANICI+1);
 		data.put("acc", acc);
 		main.put("data", data);
 		return main.toString();
@@ -125,8 +157,8 @@ public class Accomodation {
     		data.put("addr", rezultati.getString("object.addr"));
     		data.put("city", rezultati.getString("object.city"));
     		data.put("country", rezultati.getString("country.name"));
-    		data.put("lat", rezultati.getString("lat"));
-    		data.put("long", rezultati.getString("long"));
+    		data.put("lat", rezultati.getDouble("lat"));
+    		data.put("long", rezultati.getDouble("long"));
     		data.put("owner_name", rezultati.getString("user.name")+" "+rezultati.getString("user.surname"));
     		data.put("owner_phone", rezultati.getString("user.phone"));
     		data.put("owner_email", rezultati.getString("user.email"));
@@ -176,6 +208,19 @@ public class Accomodation {
     			comments.put(comment);
     		}
     		data.put("comments", comments);
+    		
+    		stat_guest_one_prices.setString(1, acc_id);
+    		rezultati = stat_guest_one_prices.executeQuery();
+    		JSONArray prices = new JSONArray();
+    		JSONObject price;
+    		while(rezultati.next()){
+    			price = new JSONObject();
+    			price.put("date_from",rezultati.getString("date_from"));
+    			price.put("date_until",rezultati.getString("date_until"));
+    			price.put("price",rezultati.getString("price"));
+    			prices.put(price);
+    		}
+    		data.put("prices", prices);
     		
     		main.put("data", data);
     		odgovor=main.toString();
@@ -250,19 +295,21 @@ public class Accomodation {
 		String date_from;
 		try{
 			date_from = search.getString("date_from");
+			if(!Security.areParamsOK(date_from))
+				date_from = "%%";
 		}catch(Exception e){
-			date_from = "";
+			date_from = "%%";
 		}
-		date_from = "%"+date_from+"%";
 		search_params.put("date_from", date_from);
 		
 		String date_until;
 		try{
 			date_until = search.getString("date_until");
+			if(!Security.areParamsOK(date_until))
+				date_until = "%%";
 		}catch(Exception e){
-			date_until = "";
+			date_until = "%%";
 		}
-		date_until = "%"+date_until+"%";
 		search_params.put("date_until", date_until);
 		
 		String beach_distance;
@@ -334,6 +381,32 @@ public class Accomodation {
 		}
 		pets = "%"+pets+"%";
 		search_params.put("pets", pets);
+		
+		String lat_min, lat_max;
+		double lat;
+		try{
+			lat = Double.parseDouble(search.getString("lat"));
+			lat_min = ""+(lat-POLUMJER_PRETRAGE);
+			lat_max = ""+(lat+POLUMJER_PRETRAGE);
+		}catch(Exception e){
+			lat_min = "-90";
+			lat_max = "90";
+		}
+		search_params.put("lat_min", lat_min);
+		search_params.put("lat_max", lat_max);
+		
+		String long_min, long_max;
+		double lng;
+		try{
+			lng = Double.parseDouble(search.getString("long"));
+			long_min = ""+(lng-POLUMJER_PRETRAGE);
+			long_max = ""+(lng+POLUMJER_PRETRAGE);
+		}catch(Exception e){
+			long_min = "-180";
+			long_max = "180";
+		}
+		search_params.put("long_min", long_min);
+		search_params.put("long_max", long_max);
 		
 		return search_params;
 	}

@@ -1,4 +1,4 @@
-var aplikacija = angular.module('hotelier', ['ngRoute', 'ngCookies', 'kontroleri']);
+var aplikacija = angular.module('hotelier', ['ngRoute', 'ngCookies', 'register', 'userdata', 'accm', 'accm_one', 'myreservations', 'objects']);
 
 var PATH = "http://localhost:4567/";
 var DOMAIN = "http://127.0.0.1:8020/Hotelier/";
@@ -11,7 +11,7 @@ aplikacija.config(['$routeProvider',
     $routeProvider.
       when('/', {
         templateUrl: 'views/all.html',
-        controller: 'accomodationController'
+        controller: 'accommodationController'
       }).
       when('/mydata', {
         templateUrl: 'views/mydata.html',
@@ -25,6 +25,14 @@ aplikacija.config(['$routeProvider',
         templateUrl: 'views/accommodation.html',
         controller: 'accOneController'
       }).
+      when('/myreservations', {
+        templateUrl: 'views/myreservations.html',
+        controller: 'myReservationsController'
+      }).
+      when('/owner/objects', {
+        templateUrl: 'views/objects.html',
+        controller: 'objectsController'
+      }).
       otherwise({
         redirectTo: '/'
       });	
@@ -33,6 +41,11 @@ aplikacija.config(['$routeProvider',
 aplikacija.controller('commonController', function ($scope, $cookieStore){
 	$scope.go = function(path){
 		location.href=DOMAIN+path;
+	};
+	$scope.loggedOut = function(){
+		$cookieStore.remove('SESSION');
+		location.href = "#/";
+		location.reload();
 	};
 	$scope.getCountries = function(){
 		$.post( PATH+'country/all', '', function( data ) {
@@ -68,10 +81,23 @@ aplikacija.controller('commonController', function ($scope, $cookieStore){
         	console.log("kraj");
 		});
 	};
-	$scope.convertDate = function(date){
+	$scope.convertDateTime = function(date){
+		if(date==null){
+			return '-';
+		}
 		var djelovi = date.split(/[- :]/);
 		var datum = new Date(djelovi[0], djelovi[1]-1, djelovi[2], djelovi[3], djelovi[4], djelovi[5]);
 		return datum.toLocaleString();
+	};
+	$scope.convertDate = function(date){
+		var djelovi = date.split(/[-]/);
+		var datum = new Date(djelovi[0], djelovi[1]-1, djelovi[2], 0, 0, 0);
+		return datum.toLocaleDateString();
+	};
+	$scope.createDate = function(date){
+		var djelovi = date.split(/[-]/);
+		var datum = new Date(djelovi[0], djelovi[1]-1, djelovi[2], 0, 0, 0);
+		return datum;
 	};
 	$scope.kolacic = $cookieStore.get('SESSION');
 });

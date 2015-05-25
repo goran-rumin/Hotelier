@@ -73,6 +73,8 @@ public class Server {
 		Country country = new Country(connect);
 		AType atype = new AType(connect, sec);
 		Comment comment = new Comment(connect, sec);
+		Reservation reservation = new Reservation(connect, sec);
+		Object object = new Object(connect, sec);
 		
         get("/", (request, response) -> {
             return "Main site";
@@ -268,6 +270,137 @@ public class Server {
        		String session_id = request.queryParams("session_id");
        		String acc_id = request.queryParams("acc_id");
             return comment.my(session_id, acc_id);
+        });
+       	
+      //RESERVATION dio
+       	get("/reservation/accommodation", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/accommodation", (request, response) -> {
+       		String acc_id = request.queryParams("acc_id");
+            return reservation.accommodation(acc_id);
+        });
+       	
+       	get("/reservation/add/guest", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/add/guest", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String acc_id = request.queryParams("acc_id");
+       		String date_from = request.queryParams("date_from");
+       		String date_until = request.queryParams("date_until");
+       		String ppl_adults = request.queryParams("ppl_adults");
+       		String ppl_children = request.queryParams("ppl_children");
+            return reservation.guestAdd(session_id, date_from, date_until, ppl_adults, ppl_children, acc_id);
+        });
+       	
+       	get("/reservation/all/guest", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/all/guest", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+            return reservation.guestAll(session_id);
+        });
+       	
+       	get("/reservation/delete/guest", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/delete/guest", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String res_id = request.queryParams("res_id");
+            return reservation.guestDelete(session_id, res_id);
+        });
+       	
+       	//OBJECT dio
+       	get("/object/all", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/object/all", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+            return object.all(session_id);
+        });
+       	
+       	get("/object/one", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/object/one", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String object_id = request.queryParams("object_id");
+            return object.one(session_id, object_id);
+        });
+       	
+       	get("/object/edit", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/object/edit", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String object_id = request.queryParams("object_id");
+       		String name = request.queryParams("name");
+       		String desc = request.queryParams("desc");
+       		String addr = request.queryParams("addr");
+       		String city = request.queryParams("city");
+       		String country_id = request.queryParams("country_id");
+       		String lat = request.queryParams("lat");
+       		String lng = request.queryParams("long");
+            return object.edit(session_id, object_id, name, desc, addr, city, country_id, lat, lng);
+        });
+       	
+       	get("/object/add", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/object/add", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String name = request.queryParams("name");
+       		String desc = request.queryParams("desc");
+       		String addr = request.queryParams("addr");
+       		String city = request.queryParams("city");
+       		String country_id = request.queryParams("country_id");
+       		String lat = request.queryParams("lat");
+       		String lng = request.queryParams("long");
+            return object.add(session_id, name, desc, addr, city, country_id, lat, lng);
+        });
+       	
+       	get("/object/edit/owners", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/object/edit/owners", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String object_id = request.queryParams("object_id");
+       		String owners = request.queryParams("owners");
+            return object.editOwners(session_id, object_id, owners);
+        });
+       	
+       	get("/object/add/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/object/add/owner", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String object_id = request.queryParams("object_id");
+       		String oib = request.queryParams("oib");
+       		String percentage = request.queryParams("percentage");
+            return object.addOwner(session_id, object_id, oib, percentage);
+        });
+       	
+       	get("/object/delete/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/object/delete/owner", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String object_id = request.queryParams("object_id");
+       		String user_id = request.queryParams("user_id");
+       		String percentage = request.queryParams("percentage");
+            return object.deleteOwner(session_id, user_id, object_id, percentage);
         });
     }
 	

@@ -15,7 +15,7 @@
   			<div id="username_group" class="form-group has-feedback">
   	  			<label class="control-label col-sm-2" for="username">Username*:</label>
     			<div class="col-sm-10" >
-      				<input id="username" type="text" class="form-control" placeholder="Enter username" 
+      				<input id="username" type="text" class="form-control" maxlength="20" placeholder="Enter username" 
       				ng-model="data.username" oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Userame can't be empty">
       				<span id="username_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
       				<span id="username_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
@@ -33,7 +33,7 @@
   			<div id="name_group" class="form-group has-feedback">
     			<label class="control-label col-sm-2" for="name">Name*:</label>
     			<div class="col-sm-10"> 
-      				<input id="name" type="text" class="form-control" placeholder="Enter your name" 
+      				<input id="name" type="text" class="form-control" maxlength="50" placeholder="Enter your name" 
       				ng-model="data.name" oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Name can't be empty">
       				<span id="name_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
       				<span id="name_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
@@ -42,7 +42,7 @@
   			<div id="surname_group" class="form-group has-feedback">
     			<label class="control-label col-sm-2" for="surname">Surname*:</label>
     			<div class="col-sm-10"> 
-      				<input id="surname" type="text" class="form-control" placeholder="Enter your surname" 
+      				<input id="surname" type="text" class="form-control" maxlength="50" placeholder="Enter your surname" 
       				ng-model="data.surname" oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Surname can't be empty">
       				<span id="surname_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
       				<span id="surname_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
@@ -51,7 +51,7 @@
   			<div id="oib_group" class="form-group has-feedback" ng-show="data.type=='Owner'">
     			<label class="control-label col-sm-2" for="oib">OIB*:</label>
     			<div class="col-sm-10"> 
-      				<input id="oib" type="text" class="form-control" placeholder="Enter your OIB" ng-model="data.oib"
+      				<input id="oib" type="text" class="form-control" maxlength="11" placeholder="Enter your OIB" ng-model="data.oib"
       				oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="OIB contains 11 digits">
       				<span id="oib_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
       				<span id="oib_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
@@ -60,13 +60,13 @@
   			<div class="form-group has-feedback">
     			<label class="control-label col-sm-2" for="address">Address:</label>
     			<div class="col-sm-10"> 
-      				<input id="address" type="text" class="form-control" placeholder="Enter your address" ng-model="data.address">
+      				<input id="address" type="text" class="form-control" maxlength="50" placeholder="Enter your address" ng-model="data.address">
     			</div>
   			</div>
   			<div class="form-group has-feedback">
     			<label class="control-label col-sm-2" for="city">City:</label>
     			<div class="col-sm-10"> 
-      				<input id="city" type="text" class="form-control" placeholder="Enter city name" ng-model="data.city">
+      				<input id="city" type="text" class="form-control" maxlength="30" placeholder="Enter city name" ng-model="data.city">
     			</div>
   			</div>
   			<div class="form-group">
@@ -79,13 +79,13 @@
   			<div class="form-group has-feedback">
     			<label class="control-label col-sm-2" for="phone">Phone:</label>
     			<div class="col-sm-10"> 
-      				<input id="phone" type="text" class="form-control" placeholder="Enter your phone number" ng-model="data.phone">
+      				<input id="phone" type="text" class="form-control" maxlength="50" placeholder="Enter your phone number" ng-model="data.phone">
     			</div>
   			</div>
   			<div id="email_group" class="form-group has-feedback">
     			<label class="control-label col-sm-2" for="email">Email*:</label>
     			<div class="col-sm-10"> 
-      				<input id="email" type="email" class="form-control" placeholder="name@domain.com" ng-model="data.email"
+      				<input id="email" type="email" class="form-control" maxlength="50" placeholder="name@domain.com" ng-model="data.email"
       				oninput="check(this)" data-toggle="tooltip" data-placement="bottom" data-title="Enter valid e-mail">
       				<span id="email_span_ok" class="glyphicon glyphicon-ok form-control-feedback" style="visibility:hidden"></span>
       				<span id="email_span_bad" class="glyphicon glyphicon-remove form-control-feedback" style="visibility:hidden"></span>
@@ -182,4 +182,10 @@
 			}
 		}
 	}
+	$("#date_birth").datepicker({
+      changeMonth: true,
+      changeYear: true,
+      firstDay: 1,
+      dateFormat: "yy-mm-dd",
+    });
 </script>

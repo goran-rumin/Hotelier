@@ -110,12 +110,48 @@
 				</table>
 			</div>
 		</div>
+		<div style="margin-bottom:45px"></div>
+		<h4>Map</h4><hr/>
+		<div class="row">
+			<div class="col-md-12">
+				<!--<iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d88956.26636463721!2d15.947680396435548!3d45.83361811369606!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2shr!4v1431114780165" width="100%" height="450" frameborder="0" style="border:0"></iframe>-->
+				<div id="map-canvas" style="width: 100%; height: 400px;"></div>
+			</div>
+		</div>
+		<div style="margin-bottom:45px"></div>
+		<h4>Prices</h4><hr/>
+		<div class="row">
+			<div class="col-md-12">
+				<table class="table table-bordered" style="text-align: center; table-layout: fixed">
+					<thead class="bg-primary">
+						<tr>
+							<td>
+								Date from
+							</td>
+							<td>
+								Date until
+							</td>
+							<td>
+								Price (€)
+							</td>
+						</tr>
+					</thead>
+					<tbody class="bg-info">
+						<tr ng-repeat="price in data.prices">
+							<td>{{price.date_from}}</td>
+							<td>{{price.date_until}}</td>
+							<td>{{price.price}}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
 		<div style="margin-bottom:75px"></div>
 		<h4>Availability</h4><hr/>
-		<div class="row" style="margin-top:20px">
-			<div class="col-md-4" ng-repeat="month in calendar track by $index" style="text-align: center">
-				<p>{{monthNames[currentMonth+$index]}}</p>
-				<table class="table table-bordered">
+		<div class="row" style="margin-top:20px" ng-repeat="months in calendar track by $index">
+			<div class="col-md-4" ng-repeat="month in months track by $index" style="text-align: center">
+				<p>{{monthNames[(currentMonth+$parent.$index*3+$index)%12]}}</p>
+				<table class="table table-bordered" style="table-layout: fixed;">
 					<thead>
 						<tr>
 							<td>
@@ -142,7 +178,10 @@
 						</tr>
 					</thead>
 					<tr ng-repeat="week in month">
-						<td class="{{day.class}}" height="30px" ng-repeat="day in week"></td>
+						<td class="{{day.class}}" height="30px" ng-repeat="day in week" style="padding: 0"> <!--http://localhost:4567/photos/empty.png -->
+							<img ng-src="http://localhost:4567/photos/calendar.png" width="50%" height="100%" style="float:left" ng-show="day.left!=null"/>
+							<img ng-src="http://localhost:4567/photos/calendar.png" width="50%" height="100%" style="float:right" ng-show="day.right!=null"/>
+						</td>
 					</tr>
 				</table>
 			</div>
@@ -176,9 +215,51 @@
 			<p>Address: {{data.addr}}<br/>City: {{data.city}}<br/>Country: {{data.country}}<br/><br/></p>
 			<h4>Contact</h4><hr/>
 			<p>Name: {{data.owner_name}}<br/>Phone: {{data.owner_phone}}<br/>E-mail: {{data.owner_email}}<br/><br/></p>
+			<h4>Make reservation:</h4><hr/>
+			<div class="alert alert-warning fade in" ng-show="!can_res">
+    			<p>Only registered guests can make reservations.</p>
+			</div>
+			<form role="form">
+				<div class="form-group">
+    				<label for="date_from">From:</label>
+    				<input id="date_from" type="date" class="form-control" ng-disabled="!can_res" ng-model="res_data.date_from">
+    				<label for="date_until">Until:</label>
+    				<input id="date_until" type="date" class="form-control" ng-disabled="!can_res" ng-model="res_data.date_until">
+  				</div>
+  				<div class="form-group">
+    				<label for="ppl_adults">Number of adults:</label>
+    				<input id="ppl_adults" type="number" min="0" class="form-control" ng-disabled="!can_res" ng-model="res_data.ppl_adults">
+  				</div>
+  				<div class="form-group">
+    				<label for="ppl_children">Number of children:</label>
+    				<input id="ppl_children" type="number" min="0" class="form-control" ng-disabled="!can_res" ng-model="res_data.ppl_children">
+  				</div>
+  				<button class="btn btn-primary" ng-click="saveReservation()" ng-disabled="!can_res">Make reservation</button>
+			</form>
+			<br/>
+			<div class="alert alert-{{res_save.class}} fade in" ng-show="res_save.show">
+    			<p>{{res_save.message}}</p>
+			</div>
+			<br/>
+			<p>Warning: All reservations are temporary (24 h from the moment of placing reservation) until confirmed by the owner.
+				Please contact the owner with mail or phone about the permanent agreement.</p>
 		</div>
 	</div>
 </div>
 <script>
 	$("a.galerija").fancybox();
+	$("#date_from").datepicker({
+      changeMonth: true,
+      changeYear: true,
+      minDate: new Date(),
+      firstDay: 1,
+      dateFormat: "yy-mm-dd"
+    });
+    $("#date_until").datepicker({
+      changeMonth: true,
+      changeYear: true,
+      minDate: new Date(),
+      firstDay: 1,
+      dateFormat: "yy-mm-dd"
+    });
 </script>

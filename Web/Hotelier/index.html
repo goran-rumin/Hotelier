@@ -10,12 +10,20 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.26/angular-cookies.js"></script>
 		<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/sha1.js"></script>
 		<script type="text/javascript" src="fancybox/jquery.fancybox.pack.js"></script>
+		<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_iGsO3YX_d_Hq2bfVDdhNsIZwG2-nT7c"></script>
 		
 		<script src="scripts/main.js"></script>
-		<script src="scripts/viewControllers.js"></script>
+		<script src="scripts/registerController.js"></script>
+		<script src="scripts/myReservationsController.js"></script>
+		<script src="scripts/userDataController.js"></script>
+		<script src="scripts/accommodationController.js"></script>
+		<script src="scripts/accOneController.js"></script>
+		<script src="scripts/objectsController.js"></script>
 		
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
+		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
 		<link rel="stylesheet" href="fancybox/jquery.fancybox.css" type="text/css" media="screen" />
 		<link rel="stylesheet" href="css/custom.css">
 		
@@ -44,9 +52,14 @@
     					<button class="btn btn-primary navbar-btn btn-sm" ng-click="go('#/register')">Register</button>
   					</form>
   					<ul class="nav navbar-nav" ng-show="kolacic!=null">
-  						<li><a href="#/" ng-show="user.type=='Owner'">Owner panel</a></li>
+  						<li class="dropdown" ng-show="user.type=='Owner'">
+  							<a href="" class="dropdown-toggle" data-toggle="dropdown" role="button">Owner panel<span class="caret"></span></a>
+  							<ul class="dropdown-menu" role="menu">
+            					<li><a href="#/owner/objects">Objects</a></li>
+          					</ul>
+  						</li>
         				<li><a href="#/mydata">My Data</a></li>
-        				<li><a href="#" ng-show="user.type=='Guest'">My Reservations</a></li>
+        				<li><a href="#/myreservations" ng-show="user.type=='Guest'">My Reservations</a></li>
         				<li class="dropdown" style="padding-right: 20px">
           					<a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{{user.name}}<span class="caret"></span></a>
           					<ul class="dropdown-menu" role="menu">

@@ -1,0 +1,86 @@
+<div class="row">
+	<div class="col-md-12 panel">
+		<h2>My reservations</h2><hr/>
+		<table class="table table-bordered" style="text-align: center">
+			<thead>
+				<tr>
+					<th>
+						Reservation No.
+					</th>
+					<th>
+						Accommodation name
+					</th>
+					<th>
+						Date from
+					</th>
+					<th>
+						Date until
+					</th>
+					<th>
+						Number of adults
+					</th>
+					<th>
+						Number of children
+					</th>
+					<th>
+						Price per day (€)
+					</th>
+					<th>
+						Discount (%)
+					</th>
+					<th>
+						Advance money paid
+					</th>
+					<th>
+						Validity date
+					</th>
+					<th>
+						Status
+					</th>
+					<th>
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="reservation in reservations">
+					<td>
+						{{reservation.id}}
+					</td>
+					<td>
+						<a href="#/accm/{{reservation.acc_id}}">{{reservation.acc_name}}</a>
+					</td>
+					<td>
+						{{reservation.date_from}}
+					</td>
+					<td>
+						{{reservation.date_until}}
+					</td>
+					<td>
+						{{reservation.ppl_adults}}
+					</td>
+					<td>
+						{{reservation.ppl_children}}
+					</td>
+					<td>
+						{{reservation.price}}
+					</td>
+					<td>
+						{{reservation.discount}}
+					</td>
+					<td>
+						{{reservation.advmoney}}
+					</td>
+					<td>
+						{{reservation.validity_date}}
+					</td>
+					<td class="{{reservation.class}}">
+						{{reservation.status}}
+					</td>
+					<td>
+						<button class="btn btn-danger" title="Delete reservation" ng-click="deleteReservation(reservation.id)" ng-disabled="!(reservation.status=='Confirmed' || reservation.status=='Pending')">X</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</div>

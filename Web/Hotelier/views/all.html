@@ -80,8 +80,13 @@
   				<div class="form-group well">
     				<label for="free_from">Available from:</label>
     				<input id="free_from" type="date" class="form-control" ng-model="search_data.date_from">
-    				<label for="free_until">Avilable until:</label>
+    				<label for="free_until">Available until:</label>
     				<input id="free_until" type="date" class="form-control" ng-model="search_data.date_until">
+  				</div>
+  				<div class="form-group">
+    				<label for="location">Location: </label>
+    				<a href="" id="location" ng-click="pickCoords()">Select...</a>
+    				<p>Selected: {{search_data.lat}}, {{search_data.long}}</p>
   				</div>
   				<div class="form-group">
     				<label for="beach_distance">Beach distance:</label>
@@ -109,4 +114,34 @@
 			</form>
 		</div>
 	</div>
+	<div id="dialog">
+		<span>Select area in which you want accommodation: </span>
+		<button id="saveMap" class="btn btn-primary">Save</button>
+		<button id="clearMap" class="btn btn-danger">Clear</button>
+		<div id="map-canvas" style="width: 100%; height: 400px;"></div>
+	</div>
 </div>
+<script>
+	$("#free_from").datepicker({
+      changeMonth: true,
+      changeYear: true,
+      minDate: new Date(),
+      firstDay: 1,
+      dateFormat: "yy-mm-dd"
+    });
+    $("#free_until").datepicker({
+      changeMonth: true,
+      changeYear: true,
+      minDate: new Date(),
+      firstDay: 1,
+      dateFormat: "yy-mm-dd"
+    });
+    $(function() {
+    	$("#dialog").dialog({
+    		autoOpen: false,
+    		draggable: false,
+    		width: 800,
+    		height: 500
+    	});
+    });
+</script>

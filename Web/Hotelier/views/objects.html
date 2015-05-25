@@ -1,0 +1,145 @@
+<div class="row">
+	<div class="col-md-3 panel">
+		<h3>Objects</h3><hr/>
+		<div class="list-group">
+  			<a id="{{object.id}}" href="" class="list-group-item" ng-click="getObject(object.id)" ng-repeat="object in objects">
+  				<h4>{{object.name}}</h4><br/>
+  				<span>Percentage owned: {{object.percentage}} %</span>
+  			</a>
+		</div>
+		<br/>
+		<button class="btn btn-success" ng-click="add()">Add new object</button>
+		<br/>
+	</div>
+	<div class="col-md-9 panel">
+		<h3>Object data</h3><hr/>
+		<form role="form">
+			<div class="form-group">
+    			<label for="object_name">Name*:</label>
+    			<input id="object_name" type="text" class="form-control" maxlength="100" ng-model="object.name">
+  			</div>
+  			<div class="form-group">
+    			<label for="object_desc">Description:</label>
+    			<textarea class="form-control" id="object_desc" style="width: 100%; max-width: 100%" maxlength="1000" ng-model="object.desc"></textarea>
+  			</div>
+  			<div class="form-group">
+    			<label for="object_addr">Address*:</label>
+    			<input id="object_addr" type="text" class="form-control" maxlength="100" ng-model="object.addr">
+  			</div>
+  			<div class="form-group">
+    			<label for="object_city">City*:</label>
+    			<input id="object_city" type="text" class="form-control" maxlength="50" ng-model="object.city">
+  			</div>
+  			<div class="form-group">
+  				<label for="country">Country*:</label>
+      			<select id="country" class="form-control" ng-model="object.country_id" ng-options="item.id as item.name for item in countries">
+            	</select>
+  			</div>
+  			<div class="form-group">
+    				<label for="location">Coordinates*: </label>
+    				<a href="" id="location" ng-click="pickCoords()">Select...</a>
+    				<p>Selected: {{object.lat}}, {{object.long}}</p>
+  			</div>
+  			<div class="form-group"> 
+      			<button id="submit" class="btn btn-primary" ng-click="edit()">Save</button>
+  			</div>
+  			<div class="alert alert-success fade in" ng-show="saved">
+  				<a href="" class="close" ng-click="saved = false">&times;</a>
+    			<p>Changes successfully saved</p>
+			</div>
+		</form>
+		<hr/> <br/>
+		<h4>Owners of this object</h4><hr/>
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th>
+						Name
+					</th>
+					<th>
+						Surname
+					</th>
+					<th>
+						OIB
+					</th>
+					<th>
+						Phone
+					</th>
+					<th>
+						Email
+					</th>
+					<th>
+						Ownership percentage (%)
+					</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="owner in object.owners">
+					<td>
+						{{owner.name}}
+					</td>
+					<td>
+						{{owner.surname}}
+					</td>
+					<td>
+						{{owner.oib}}
+					</td>
+					<td>
+						{{owner.phone}}
+					</td>
+					<td>
+						{{owner.email}}
+					</td>
+					<td>
+						<input type="number" class="form-control" maxlength="3" ng-model="owner.percentage" ng-disabled="!object.can_edit_owners">
+					</td>
+					<td>
+						<button class="btn btn-danger" title="Delete owner" ng-click="deleteOwner(owner.id, owner.percentage)" ng-disabled="!object.can_edit_owners || object.owners.length==1">X</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<br/>
+		<button class="btn btn-primary" ng-click="saveOwners()" ng-disabled="!object.can_edit_owners">Save owners</button>&nbsp;&nbsp;
+		<button class="btn btn-success" ng-click="addOwner()" ng-disabled="!object.can_edit_owners">Add new owner</button>
+		<br/>
+		<p ng-show="object.can_edit_owners==false">Only main owner (owner with biggest percentage) can edit ownership.</p>
+		<p ng-show="object.can_edit_owners==null">You need to save object before you can edit ownership.</p>
+		<div class="alert alert-success fade in" ng-show="saved_owners">
+  				<a href="" class="close" ng-click="saved_owners = false">&times;</a>
+    			<p>Changes to ownership successfully saved</p>
+		</div>
+		<br/>
+	</div>
+</div>
+<div id="dialog_objects">
+	<span>Select location where is your object:</span>
+	<button id="saveMapObjects" class="btn btn-primary">Save</button>
+	<div id="map-canvas-objects" style="width: 100%; height: 400px;"></div>
+</div>
+<div id="dialog_owner">
+	<span>Enter OIB and percentage of ownership for new owner:</span><br/>
+	<label for="oib">OIB:</label>
+	<input id="oib" type="text" class="form-control" maxlength="11">
+	<label for="percentage">Percentage:</label>
+	<input id="percentage" type="number" class="form-control" min="1" max="100">
+	<br/>
+	<button id="saveOwner" class="btn btn-primary">Save</button>
+</div>
+<script>
+	$(function() {
+    	$("#dialog_objects").dialog({
+    		autoOpen: false,
+    		draggable: false,
+    		width: 800,
+    		height: 500
+    	});
+    	$("#dialog_owner").dialog({
+    		autoOpen: false,
+    		draggable: false,
+    		width: 400,
+    		height: 400
+    	});
+    });
+</script>

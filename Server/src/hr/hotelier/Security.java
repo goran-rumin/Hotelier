@@ -4,6 +4,7 @@ import static spark.Spark.before;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Timer;
@@ -26,6 +27,15 @@ public class Security {
 	static String ERROR5 = "Data edit for current data not possible";
 	static String ERROR6 = "Unknown accommodation ID";
 	static String ERROR7 = "Unknown comment data";
+	static String ERROR8 = "Accommodation is not for sale in the requested period";
+	static String ERROR9 = "Accommodation is not free in the requested period";
+	static String ERROR10 = "Not enough data to make reservation";
+	static String ERROR11 = "You are not the owner of requested object";
+	static String ERROR12 = "Wrong data. Please fill required fields";
+	static String ERROR13 = "Owner with this OIB number doesn't exist";
+	static String ERROR14 = "You are already owner of this object";
+	
+	Timer timer = new Timer();
 	
 	public Security(){
 		sessions = new HashMap<String,Integer>();
@@ -85,22 +95,6 @@ public class Security {
 		return -1;
 	}
 	
-	Timer timer = new Timer();
-   	TimerTask zadatak = new TimerTask() {
-   		@Override
-   		public void run() {
-   			for(Entry<String, Date> entry : lease.entrySet()) {
-   			    String key = entry.getKey();
-   			    Date value = entry.getValue();
-   			    Date sada = new Date();
-   			    if(value.getTime()<(sada.getTime()-30*60*1000)){
-   			    	lease.remove(key);
-   			    	sessions.remove(key);
-   			    }
-   			}
-   		}
-   	};
-	
 	static String sha1(String input) throws NoSuchAlgorithmException {
         MessageDigest mDigest = MessageDigest.getInstance("SHA1");
         byte[] result = mDigest.digest(input.getBytes());
@@ -145,9 +139,24 @@ public class Security {
 	 */
 	static boolean areParamsOK(String... params){
 		for(int i=0;i<params.length;i++){
-			if(params[i]==null || params[i].equals(""))
+			if(params[i]==null || params[i].equals("") || params[i].equals("undefined") || params[i].equals("null"))
 				return false;
 		}
 		return true;
 	}
+	
+   	TimerTask zadatak = new TimerTask() {
+   		@Override
+   		public void run() {
+   			for(Entry<String, Date> entry : lease.entrySet()) {
+   			    String key = entry.getKey();
+   			    Date value = entry.getValue();
+   			    Date sada = new Date();
+   			    if(value.getTime()<(sada.getTime()-30*60*1000)){
+   			    	lease.remove(key);
+   			    	sessions.remove(key);
+   			    }
+   			}
+   		}
+   	};
 }
