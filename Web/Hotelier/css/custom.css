@@ -1,5 +1,5 @@
 body {
-	background: url(http://globe-views.com/dcim/dreams/sea/sea-05.jpg) no-repeat top center fixed;
+	background: url( http://localhost:4567/photos/more.jpg ) no-repeat top center fixed;
   }
 .navbar-custom {
   background-color: #242682;
@@ -47,4 +47,8 @@ body {
 }
 .navbar-custom .navbar-link:hover {
   color: #587aff;
+}
+
+.pointer {
+    cursor: pointer;
 }

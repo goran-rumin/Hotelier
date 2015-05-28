@@ -178,10 +178,15 @@
 			}
 		}
 	}
-	$("#date_birth").datepicker({
+	/*$("#date_birth").datepicker({
       changeMonth: true,
       changeYear: true,
       firstDay: 1,
       dateFormat: "yy-mm-dd",
-    });
+    });*/
+    $('#date_birth').datetimepicker({
+		timepicker:false,
+		closeOnDateSelect:true,
+		format:'Y-m-d',
+	});
 </script>

@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.eclipse.jetty.server.handler.ContextHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +42,7 @@ public class Server {
 	private PreparedStatement preparedStatement = null;
 	private static ResultSet resultSet = null;
 	
-	public static String PATH = "D:/FER/Knjige/6. semestar/Završni rad/Spark public folder";
+	public static String PATH = "D:/FER/Knjige/6. semestar/Završni rad/Spark public folder/";
 	
 	
 	public static void main(String[] args) throws SQLException {
@@ -231,6 +232,141 @@ public class Server {
             return odgovor;
         });
        	
+       	get("/accommodation/all/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/accommodation/all/owner", (request, response) -> {
+        	String session_id = request.queryParams("session_id");
+            return accm.ownerAll(session_id);
+        });
+       	
+       	get("/accommodation/all", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/accommodation/all", (request, response) -> {
+        	String session_id = request.queryParams("session_id");
+            return accm.all(session_id);
+        });
+       	
+       	get("/accommodation/one/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/accommodation/one/owner", (request, response) -> {
+        	String session_id = request.queryParams("session_id");
+        	String acc_id = request.queryParams("acc_id");
+            return accm.ownerOne(session_id, acc_id);
+        });
+       	
+       	get("/accommodation/edit", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/accommodation/edit", (request, response) -> {
+        	String session_id = request.queryParams("session_id");
+        	String acc_id = request.queryParams("acc_id");
+        	String object_id = request.queryParams("object_id");
+        	String name = request.queryParams("name");
+        	String category = request.queryParams("category");
+        	String surface = request.queryParams("surface");
+        	String sea = request.queryParams("sea");
+        	String air  = request.queryParams("air");
+			String sattv = request.queryParams("sattv");
+			String balcony = request.queryParams("balcony");
+			String breakfast = request.queryParams("breakfast");
+			String pets = request.queryParams("pets");
+			String beach_distance = request.queryParams("beach_distance");
+			String main_pic = request.queryParams("main_pic");
+			String desc = request.queryParams("desc");
+			String acc_type_id = request.queryParams("acc_type_id");
+            return accm.edit(session_id, acc_id, object_id, name, category, surface, sea, 
+            		air, sattv, balcony, breakfast, pets, beach_distance, main_pic, desc, acc_type_id);
+        });
+       	
+       	get("/accommodation/add", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/accommodation/add", (request, response) -> {
+        	String session_id = request.queryParams("session_id");
+        	String object_id = request.queryParams("object_id");
+        	String name = request.queryParams("name");
+        	String category = request.queryParams("category");
+        	String surface = request.queryParams("surface");
+        	String sea = request.queryParams("sea");
+        	String air  = request.queryParams("air");
+			String sattv = request.queryParams("sattv");
+			String balcony = request.queryParams("balcony");
+			String breakfast = request.queryParams("breakfast");
+			String pets = request.queryParams("pets");
+			String beach_distance = request.queryParams("beach_distance");
+			String main_pic = request.queryParams("main_pic");
+			String desc = request.queryParams("desc");
+			String acc_type_id = request.queryParams("acc_type_id");
+            return accm.add(session_id, object_id, name, category, surface, sea, air, sattv, balcony, 
+            		breakfast, pets, beach_distance, main_pic, desc, acc_type_id);
+        });
+       	
+       	HashMap<String, String> image_cache = new HashMap<String, String>();
+       	get("/image/upload", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/image/upload", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String base64_code = request.queryParams("base64");
+       		String flag = request.queryParams("flag");
+       		if(flag.equals("sending")){
+       			if(!image_cache.containsKey(session_id)){
+       				image_cache.put(session_id, "");
+       			}
+       			image_cache.put(session_id, image_cache.get(session_id)+base64_code);
+       		}
+       		else{
+       			String prethodni = image_cache.get(session_id);
+       			if(prethodni != null){
+       				base64_code = prethodni+base64_code;
+       			}
+       			image_cache.remove(session_id);
+       			return accm.pictureUpload(session_id, base64_code);
+       		}
+            return "{\"received\":1}";
+        });
+       	
+       	get("/image/save", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/image/save", (request, response) -> {
+        	String session_id = request.queryParams("session_id");
+        	String acc_id = request.queryParams("acc_id");
+        	String images = request.queryParams("images");
+            return accm.picturesSave(session_id, acc_id, images);
+        });
+       	
+       	get("/image/delete", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/image/delete", (request, response) -> {
+        	String session_id = request.queryParams("session_id");
+        	String image_id = request.queryParams("image_id");
+            return accm.picturesDelete(session_id, image_id);
+        });
+       	
+       	get("/prices/add", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/prices/add", (request, response) -> {
+        	String session_id = request.queryParams("session_id");
+        	String acc_id = request.queryParams("acc_id");
+        	String prices = request.queryParams("prices");
+            return accm.pricesAdd(session_id, acc_id, prices);
+        });
+       	
        	//ACC_TYPE dio
        	get("/atype/all", (request, response) -> {
         	return Security.ERROR;
@@ -314,6 +450,107 @@ public class Server {
        		String res_id = request.queryParams("res_id");
             return reservation.guestDelete(session_id, res_id);
         });
+       	
+       	get("/reservation/all/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/all/owner", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String index = request.queryParams("index");
+            return reservation.ownerAllOccupied(session_id, index);
+        });
+       	
+       	get("/reservation/all/owner/canceled", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/all/owner/canceled", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String index = request.queryParams("index");
+            return reservation.ownerAllCanceled(session_id, index);
+        });
+       	
+       	get("/reservation/one/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/one/owner", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String res_id = request.queryParams("res_id");
+            return reservation.ownerOne(session_id, res_id);
+        });
+       	
+       	get("/reservation/edit/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/edit/owner", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String res_id = request.queryParams("res_id");
+       		String acc_id = request.queryParams("acc_id");
+       		String date_from = request.queryParams("date_from");
+       		String date_until = request.queryParams("date_until");
+       		String ppl_adults = request.queryParams("ppl_adults");
+       		String ppl_children = request.queryParams("ppl_children");
+       		String price = request.queryParams("price");
+       		String discount = request.queryParams("discount");
+       		String advmoney = request.queryParams("advmoney");
+       		String remark = request.queryParams("remark");
+       		String validity_date = request.queryParams("validity_date");
+       		System.out.println(request.queryParams());
+            return reservation.ownerEdit(session_id, res_id, acc_id, date_from, date_until, ppl_adults, 
+            		ppl_children, price, discount, advmoney, remark, validity_date);
+        });
+       	
+       	get("/reservation/add/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/add/owner", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String acc_id = request.queryParams("acc_id");
+       		String date_from = request.queryParams("date_from");
+       		String date_until = request.queryParams("date_until");
+       		String ppl_adults = request.queryParams("ppl_adults");
+       		String ppl_children = request.queryParams("ppl_children");
+       		String price = request.queryParams("price");
+       		String discount = request.queryParams("discount");
+       		String advmoney = request.queryParams("advmoney");
+       		String remark = request.queryParams("remark");
+            return reservation.ownerAdd(session_id, date_from, date_until, ppl_adults, ppl_children, acc_id, price, discount, advmoney, remark);
+        });
+       	
+       	get("/reservation/log", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/log", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String res_id = request.queryParams("res_id");
+            return reservation.log(session_id, res_id);
+        });
+       	
+       	get("/reservation/delete/owner", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/delete/owner", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String res_id = request.queryParams("res_id");
+            return reservation.ownerDelete(session_id, res_id);
+        });
+       	
+       	get("/reservation/confirm", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/reservation/confirm", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String res_id = request.queryParams("res_id");
+            return reservation.ownerConfirm(session_id, res_id);
+        });
+       	
        	
        	//OBJECT dio
        	get("/object/all", (request, response) -> {

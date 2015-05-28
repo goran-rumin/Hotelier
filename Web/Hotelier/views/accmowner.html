@@ -1,0 +1,167 @@
+<div class="row">
+	<div class="col-md-3 panel">
+		<h3>Accommodations</h3><hr/>
+		<div ng-repeat="(object, accms) in accommodations">
+			<h3><span class="label label-default">{{object}}</span></h3><hr/>
+			<div class="list-group">
+  				<a href="" class="list-group-item" ng-click="getAccommodation(accommodation.id)" ng-repeat="accommodation in accms">
+  					<h4>{{accommodation.name}}</h4>
+  				</a>
+			</div><br/>
+		</div>
+		<br/>
+			<button class="btn btn-success" ng-click="add()">Add new accommodation</button>
+		<br/>
+	</div>
+	<div class="col-md-9 panel">
+		<h3>Accommodation data</h3><hr/>
+		<form role="form">
+			<div class="form-group">
+  				<label for="object">Object*:</label>
+      			<select id="object" class="form-control" ng-model="accommodation.object_id" ng-options="item.id as item.name for item in objects">
+            	</select>
+  			</div>
+			<div class="form-group">
+    			<label for="name">Name*:</label>
+    			<input id="name" type="text" class="form-control" maxlength="50" ng-model="accommodation.name">
+  			</div>
+  			<div class="form-group">
+    			<label for="desc">Description:</label>
+    			<textarea class="form-control" id="desc" style="width: 100%; max-width: 100%" maxlength="1000" ng-model="accommodation.desc"></textarea>
+  			</div>
+  			<div class="form-group">
+    			<label for="category">Category*:</label>
+    			<select id="category" class="form-control" ng-model="accommodation.category">
+  					<option value="1">1*</option>
+  					<option value="2">2*</option>
+  					<option value="3">3*</option>
+  					<option value="4">4*</option>
+  					<option value="5">5*</option>
+				</select>
+  			</div>
+  			<div class="form-group">
+    			<label for="surface">Surface (m2):</label>
+    			<input id="surface" type="number" class="form-control" min="0" ng-model="accommodation.surface">
+  			</div>
+  			<div class="checkbox">
+    			<label><input type="checkbox" ng-model="accommodation.sea"> Sea view*</label>
+  			</div>
+  			<div class="checkbox">
+    			<label><input type="checkbox" ng-model="accommodation.air"> Air condition*</label>
+  			</div>
+  			<div class="checkbox">
+    			<label><input type="checkbox" ng-model="accommodation.sattv"> SAT/TV*</label>
+  			</div>
+			<div class="checkbox">
+    			<label><input type="checkbox" ng-model="accommodation.balcony"> Balcony*</label>
+  			</div>
+  			<div class="checkbox">
+    			<label><input type="checkbox" ng-model="accommodation.breakfast"> Breakfast*</label>
+  			</div>
+  			<div class="checkbox">
+    			<label><input type="checkbox" ng-model="accommodation.pets"> Accepts pets*</label>
+    		</div>
+  			<div class="form-group">
+    			<label for="beach_distance">Beach distance:</label>
+    			<input id="beach_distance" type="number" class="form-control" min="0" ng-model="accommodation.beach_distance">
+  			</div>
+  			<div class="form-group">
+    			<label>Main picture*:</label>
+    			<div style="max-width: 200px">
+    				<a class="galerija img-thumbnail" href="{{PATH+accommodation.main_pic}}"><img src="{{PATH_SMALL+accommodation.main_pic}}" alt="" width="100%"/></a>
+  				</div>
+  				<input type='file' ng-model='picture' accept="image/jpeg" maxsize="4096" base-sixty-four-input><br/>
+  				<button class="btn btn-success" ng-click="upload()" ng-disabled="upload_text == 'Uploading'">{{upload_text}}</button>
+  				<div class="alert alert-danger fade in" ng-show="picture_success">
+  					<a href="" class="close" ng-click="picture_success = false">&times;</a>
+    				<p>{{message}}</p>
+				</div>
+  			</div>
+  			<div class="form-group">
+  				<label for="acc_type">Accommodation type*:</label>
+      			<select id="acc_type" class="form-control" ng-model="accommodation.acc_type_id" ng-options="item.id as item.name for item in atypes">
+            	</select>
+  			</div>
+  			<div class="form-group"> 
+      			<button id="submit" class="btn btn-primary" ng-click="edit()">Save</button>
+  			</div>
+  			<div class="alert alert-success fade in" ng-show="saved">
+  				<a href="" class="close" ng-click="saved = false">&times;</a>
+    			<p>Changes successfully saved</p>
+			</div>
+		</form>
+		<hr/> <br/>
+		<h4>Pictures</h4><hr/>
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th>
+						Picture
+					</th>
+					<th></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="image in accommodation.images">
+					<td>
+						<a class="galerija img-thumbnail" href="{{PATH+image.value}}"><img src="{{PATH_SMALL+image.value}}" alt="" width="200px"/></a>
+					</td>
+					<td>
+						<button class="btn btn-danger" title="Delete picture" ng-click="deleteImage(image.id)" ng-disabled="image.id==-1">X</button>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<br/>
+		<input type='file' ng-model='image' accept="image/jpeg" maxsize="4096" base-sixty-four-input><br/>
+		<button class="btn btn-primary" ng-click="saveImages()" ng-disabled="upload_text2=='Uploading' || accommodation.id==null">Save list of pictures</button>&nbsp;&nbsp;
+		<button class="btn btn-success" ng-click="addImage()" ng-disabled="upload_text2=='Uploading' || accommodation.id==null">{{upload_text2}}</button><br/>
+		<div class="alert alert-danger fade in" ng-show="picture_success2">
+  			<a href="" class="close" ng-click="picture_success2 = false">&times;</a>
+    		<p>{{message2}}</p>
+		</div>
+		<br/>
+		
+		<hr/> <br/>
+		<h4>Prices</h4><hr/>
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th>
+						Date from
+					</th>
+					<th>
+						Date until
+					</th>
+					<th>
+						Price (€)
+					</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="price in accommodation.prices">
+					<td>
+						<input type="date" class="form-control datum" ng-model="price.date_from">
+					</td>
+					<td>
+						<input type="date" class="form-control datum" ng-model="price.date_until">
+					</td>
+					<td>
+						<input type="number" class="form-control" ng-model="price.price">
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		<br/>
+		<button class="btn btn-primary" ng-click="savePrices()" ng-disabled="accommodation.id==null">Save prices</button>&nbsp;&nbsp;
+		<button class="btn btn-success" ng-click="accommodation.prices.push({})" ng-disabled="accommodation.id==null">Add price</button><br/>
+		<div class="alert alert-success fade in" ng-show="prices_success">
+  			<a href="" class="close" ng-click="prices_success = false">&times;</a>
+    		<p>Changes successfully saved</p>
+		</div>
+		<br/>
+	</div>
+</div>
+<script>
+    $("a.galerija").fancybox();
+</script>

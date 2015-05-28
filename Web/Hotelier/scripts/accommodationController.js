@@ -3,7 +3,7 @@ var apl_acc = angular.module('accm', ['ngCookies']);
 
 apl_acc.controller('accommodationController', function ($scope){
 	
-	$scope.path = PATH;
+	$scope.path = IMAGES_SMALL;
 	$scope.class_n = '';
 	$scope.class_p = 'disabled';
 	$scope.cpage = 1;
@@ -122,5 +122,5 @@ apl_acc.controller('accommodationController', function ($scope){
     });
     
 	$scope.getData($scope.cpage);
-	$scope.getAtypes();
+	$scope.getAtypes(1);
 });

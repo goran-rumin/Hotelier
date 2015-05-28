@@ -12,6 +12,8 @@
 		<script type="text/javascript" src="fancybox/jquery.fancybox.pack.js"></script>
 		<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
 		<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_iGsO3YX_d_Hq2bfVDdhNsIZwG2-nT7c"></script>
+		<script src="scripts/angular-base64-upload.js"></script>
+		<script src="scripts/jquery.datetimepicker.js"></script>
 		
 		<script src="scripts/main.js"></script>
 		<script src="scripts/registerController.js"></script>
@@ -20,12 +22,15 @@
 		<script src="scripts/accommodationController.js"></script>
 		<script src="scripts/accOneController.js"></script>
 		<script src="scripts/objectsController.js"></script>
+		<script src="scripts/accOwnerController.js"></script>
+		<script src="scripts/reservationsOwnerController.js"></script>
 		
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css">
 		<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
 		<link rel="stylesheet" href="fancybox/jquery.fancybox.css" type="text/css" media="screen" />
 		<link rel="stylesheet" href="css/custom.css">
+		<link rel="stylesheet" href="css/jquery.datetimepicker.css">
 		
         <title>Hotelier</title>
         <style>
@@ -56,6 +61,8 @@
   							<a href="" class="dropdown-toggle" data-toggle="dropdown" role="button">Owner panel<span class="caret"></span></a>
   							<ul class="dropdown-menu" role="menu">
             					<li><a href="#/owner/objects">Objects</a></li>
+            					<li><a href="#/owner/accm">Accommodation</a></li>
+            					<li><a href="#/owner/reservations">Reservations</a></li>
           					</ul>
   						</li>
         				<li><a href="#/mydata">My Data</a></li>

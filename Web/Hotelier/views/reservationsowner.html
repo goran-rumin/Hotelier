@@ -1,0 +1,211 @@
+<div class="row">
+	<div class="col-md-12 panel">
+		<div class="row">
+			<div class="col-md-8">
+				<h3>Reservations</h3>
+			</div>
+			<div class="col-md-4">
+				<div align="right">
+					<nav>
+  						<ul class="pager">
+    						<li class="{{class_p}}"><a href="" ng-click="previous()">Previous</a></li>
+    						<li class="{{class_n}}"><a href="" ng-click="next()">Next</a></li>
+  						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+		<hr/>
+		<table class="table table-bordered" style="table-layout: fixed;">
+			<thead class="bg-primary" style="text-align: center">
+				<tr>
+					<td style="width: 200px">
+						Accommodations
+					</td>
+					<td class="klasa" ng-repeat="date in dates">
+						{{date}}
+					</td>
+				</tr>
+			</thead>
+			<tr ng-repeat-start="(object, accommodations) in data">
+				<td colspan="14" style="font-weight: bold">
+					{{object}}
+				</td>
+			</tr>
+			<tr ng-repeat="(accommodation, reservations) in accommodations" ng-repeat-end>
+				<td>
+					{{accommodation}}
+				</td>
+				<td class="{{reservation.class}} {{reservation.id!=null ? 'pointer' : ''}}" height="40px" ng-repeat="reservation in reservations" style="padding: 0" ng-mouseenter="showData($event)" ng-mouseleave="hideData($event)" ng-click="getReservation(reservation.id, false)" data-id="{{reservation.id}}">
+					<img ng-src="http://localhost:4567/photos/calendar.png" width="50%" height="100%" style="float:left" ng-show="reservation.left_d!=null"/>
+					<img ng-src="http://localhost:4567/photos/calendar.png" width="50%" height="100%" style="float:right" ng-show="reservation.right_d!=null"/>
+					<img ng-src="http://localhost:4567/photos/calendar_pending.png" width="50%" height="100%" style="float:left" ng-show="reservation.left_w!=null"/>
+					<img ng-src="http://localhost:4567/photos/calendar_pending.png" width="50%" height="100%" style="float:right" ng-show="reservation.right_w!=null"/>
+				</td>
+			</tr>
+		</table>
+		<br/>
+		<br/>
+		<h3>Canceled reservations</h3>
+		<table class="table table-bordered">
+			<thead class="bg-primary" style="text-align: center">
+				<tr>
+					<td>Accommodation</td>
+					<td>Guest name</td>
+					<td>Guest surname</td>
+					<td>Date from</td>
+					<td>Date until</td>
+					<td>Price</td>
+					<td>Discount</td>
+					<td>Reason</td>
+					<td></td>
+				</tr>
+			</thead>
+			<tr ng-repeat-start="(obj, accms) in canceled">
+				<td class="info" colspan="9" style="font-weight: bold">
+					{{obj}}
+				</td>
+			</tr>
+			<tr ng-repeat-start="(accm, ress) in accms" ng-hide="true"></tr>
+			<tr ng-repeat="res in ress" ng-repeat-end>
+				<td style="font-weight: bold">{{accm}}</td>
+				<td>{{res.name}}</td>
+				<td>{{res.surname}}</td>
+				<td>{{convertDate(res.date_from)}}</td>
+				<td>{{convertDate(res.date_until)}}</td>
+				<td>{{res.price}}</td>
+				<td>{{res.discount}}</td>
+				<td>{{res.type}}</td>
+				<td><button class="btn btn-primary" ng-click="getReservation(res.id, true)">View</button></td>
+			</tr>
+			<tr ng-repeat-end ng-hide="true"></tr>
+		</table>
+		<br/>
+		<br/>
+		<h3>Edit reservation</h3><hr/>
+		<form role="form">
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-group">
+  						<label for="id">Number:</label>
+	      				<p id="id">{{reservation.id}}</p>
+  					</div>
+		  			<div class="form-group">
+		  				<label for="name">Name:</label>
+			      			<p id="name">{{reservation.name}}</p>
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="surname">Surname:</label>
+			      			<p id="surname">{{reservation.surname}}</p>
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="country">Country:</label>
+			      			<p id="country">{{reservation.country}}</p>
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="phone">Phone:</label>
+			      			<p id="phone">{{reservation.phone}}</p>
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="email">E-mail:</label>
+			      			<p id="email">{{reservation.email}}</p>
+		  			</div>
+					<div class="form-group">
+  						<label for="acc">Accommodation:</label>
+	      				<select id="acc" class="form-control" ng-model="reservation.acc_id" ng-options="item.id as item.name for item in accommodations" ng-disabled="cannot_edit">
+	   	         		</select>
+  					</div>
+  					<div class="form-group">
+  						<label for="date_from">Date from:</label>
+	      				<input id="date_from" type="date" class="form-control" ng-model="reservation.date_from" ng-disabled="cannot_edit">
+  					</div>
+		  			<div class="form-group">
+		  				<label for="date_until">Date until:</label>
+			      		<input id="date_until" type="date" class="form-control" ng-model="reservation.date_until" ng-disabled="cannot_edit">
+		  			</div>
+  				</div>
+  				<div class="col-md-6">
+  					<div class="form-group">
+		  				<label for="ppl_adults">Number of adults:</label>
+		  				<input id="ppl_adults" type="text" class="form-control" ng-model="reservation.ppl_adults" ng-disabled="cannot_edit">
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="ppl_children">Number of children:</label>
+		  				<input id="ppl_children" type="text" class="form-control" ng-model="reservation.ppl_children" ng-disabled="cannot_edit">
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="price">Price (€):</label>
+			      		<input id="price" type="text" class="form-control" ng-model="reservation.price" ng-disabled="cannot_edit">
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="discount">Discount (%):</label>
+			      		<input id="discount" type="text" class="form-control" ng-model="reservation.discount" ng-disabled="cannot_edit">
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="advmoney">Advance money (€):</label>
+			      		<input id="advmoney" type="text" class="form-control" ng-model="reservation.advmoney" ng-disabled="cannot_edit">
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="validity_date">Validity date:</label>
+			      		<input id="validity_date" type="date" class="form-control" ng-model="reservation.validity_date" ng-disabled="cannot_edit">
+		  			</div>
+		  			<div class="form-group">
+		  				<label for="type">Status:</label>
+			      		<p id="type">{{reservation.type}}</p>
+			      		<button class="btn btn-success" ng-click="confirmReservation()" ng-disabled="cannot_edit || reservation.type!='Pending'">Confirm</button>
+		  			</div>
+					<div class="form-group">
+  						<label for="remark">Remark:</label>
+	      				<textarea class="form-control" id="remark" style="width: 100%; max-width: 100%" maxlength="1000" ng-model="reservation.remark" ng-disabled="cannot_edit"></textarea>
+  					</div>
+  				</div>
+  			</div>
+  		</form>
+  		<button class="btn btn-primary" ng-click="edit()" ng-disabled="cannot_edit">Save</button>&nbsp;&nbsp;
+  		<button class="btn btn-success" ng-click="add()">Add reservation</button>&nbsp;&nbsp;
+  		<button class="btn btn-danger" ng-click="remove()" ng-disabled="cannot_edit || reservation.id==null">Cancel reservation</button>
+  		<br/>
+  		<div class="alert alert-success fade in" ng-show="saved">
+  			<a href="" class="close" ng-click="saved = false">&times;</a>
+    		<p>Changes successfully saved</p>
+		</div>
+		<br/>
+		<br/>
+		<h3>Changelog</h3><hr/>
+		<table class="table table-bordered">
+			<thead class="bg-primary" style="text-align: center">
+				<tr>
+					<td>Date</td>
+					<td>What was edited</td>
+				</tr>
+			</thead>
+			<tr ng-repeat="log_entry in log">
+				<td>
+					{{convertDateTime(log_entry.time)}}
+				</td>
+				<td>
+					{{log_entry.desc}}
+				</td>
+			</tr>
+		</table>
+	</div>
+</div>
+<script>
+	$('#validity_date').datetimepicker({
+		closeOnDateSelect:true,
+		minDate:0,
+		format:'Y-m-d H:i:s',
+	});
+	$('#date_from').datetimepicker({
+		timepicker:false,
+		closeOnDateSelect:true,
+		minDate:0,
+		format:'Y-m-d',
+	});
+	$('#date_until').datetimepicker({
+		timepicker:false,
+		closeOnDateSelect:true,
+		minDate:0,
+		format:'Y-m-d',
+	});
+</script>

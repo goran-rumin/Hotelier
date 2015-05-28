@@ -1,4 +1,4 @@
-var aplikacija = angular.module('hotelier', ['ngRoute', 'ngCookies', 'register', 'userdata', 'accm', 'accm_one', 'myreservations', 'objects']);
+var aplikacija = angular.module('hotelier', ['ngRoute', 'ngCookies', 'naif.base64', 'register', 'userdata', 'accm', 'accm_one', 'myreservations', 'objects', 'accm_owner', 'res_owner']);
 
 var PATH = "http://localhost:4567/";
 var DOMAIN = "http://127.0.0.1:8020/Hotelier/";
@@ -33,12 +33,22 @@ aplikacija.config(['$routeProvider',
         templateUrl: 'views/objects.html',
         controller: 'objectsController'
       }).
+      when('/owner/accm', {
+        templateUrl: 'views/accmowner.html',
+        controller: 'accOwnerController'
+      }).
+      when('/owner/reservations', {
+        templateUrl: 'views/reservationsowner.html',
+        controller: 'reservationsOwnerController'
+      }).
       otherwise({
         redirectTo: '/'
       });	
   }]);
 
 aplikacija.controller('commonController', function ($scope, $cookieStore){
+	$scope.kolacic = $cookieStore.get('SESSION');
+	
 	$scope.go = function(path){
 		location.href=DOMAIN+path;
 	};
@@ -54,11 +64,27 @@ aplikacija.controller('commonController', function ($scope, $cookieStore){
         	$scope.$apply();
 		});
 	};
-	$scope.getAtypes = function(){
+	$scope.getAtypes = function(type){
 		$.post( PATH+'atype/all', '', function( data ) {
 			var main_json = angular.fromJson(data);
         	$scope.atypes=main_json.data;
-        	$scope.atypes.push({id: 0, name: "All"});
+        	if(type==1){
+        		$scope.atypes.push({id: 0, name: "All"});
+        	}
+        	$scope.$apply();
+		});
+	};
+	$scope.getObjects = function(id){
+		$.post( PATH+'object/all', 'session_id='+id, function( data ) {
+			var main_json = angular.fromJson(data);
+        	$scope.objects=main_json.data;
+        	$scope.$apply();
+		});
+	};
+	$scope.getAccommodations = function(id){
+		$.post( PATH+'accommodation/all', 'session_id='+id, function( data ) {
+			var main_json = angular.fromJson(data);
+        	$scope.accommodations=main_json.data;
         	$scope.$apply();
 		});
 	};
@@ -99,7 +125,6 @@ aplikacija.controller('commonController', function ($scope, $cookieStore){
 		var datum = new Date(djelovi[0], djelovi[1]-1, djelovi[2], 0, 0, 0);
 		return datum;
 	};
-	$scope.kolacic = $cookieStore.get('SESSION');
 });
 aplikacija.controller('loginController', function ($scope, $cookieStore, $route){
 	if($scope.kolacic!=null){

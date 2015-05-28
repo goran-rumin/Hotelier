@@ -1,12 +1,23 @@
 package hr.hotelier;
 
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+
+import javax.imageio.ImageIO;
+import javax.xml.bind.DatatypeConverter;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +31,8 @@ public class Accomodation {
 	private int BROJ_APP_PO_STRANICI = 9;
 	private double POLUMJER_PRETRAGE = 0.031726; //odgovara duljini 2.5 km
 	
+	private int DATA_TYPE_IMAGE = 1;
+	
 	private PreparedStatement stat_guest_all;
 	private PreparedStatement stat_pages_num;
 	private PreparedStatement stat_guest_one;
@@ -27,6 +40,15 @@ public class Accomodation {
 	private PreparedStatement stat_guest_one_comments;
 	private PreparedStatement stat_guest_one_rating;
 	private PreparedStatement stat_guest_one_prices;
+	private PreparedStatement stat_owner_all;
+	private PreparedStatement stat_owner_one;
+	private PreparedStatement stat_owner_one_images;
+	private PreparedStatement stat_edit;
+	private PreparedStatement stat_add_picture;
+	private PreparedStatement stat_delete_picture;
+	private PreparedStatement stat_add;
+	private PreparedStatement stat_delete_prices;
+	private PreparedStatement stat_add_price;
 	
 	public Accomodation(Connection connection, Security security) throws SQLException{
 		connect = connection;
@@ -38,7 +60,7 @@ public class Accomodation {
 				+ "AND has_sea_view LIKE ? AND has_air_condition LIKE ? "
 				+ "AND has_sattv LIKE ? AND has_balcony LIKE ? AND has_breakfast LIKE ? AND accepts_pets LIKE ? "
 				+ "AND lat BETWEEN ? AND ? AND `long` BETWEEN ? AND ? "
-				+ "AND accommodation.id NOT IN (SELECT acc_id FROM reservation JOIN res_status ON res_status_id=res_status.id WHERE (name='Confirmed' OR name='Pending') AND ((date_from<=? AND date_until>=?) OR (date_from<=DATE_SUB(?,INTERVAL 1 DAY) AND date_until>=DATE_SUB(?,INTERVAL 1 DAY)) OR (date_from>? AND date_until<DATE_SUB(?,INTERVAL 1 DAY)))) " //kraj zeljenog boravka-1 jer se gledaju noæenja, a u bazi se kao zadnji dan sprema dan prije samog odlaska
+				+ "AND accommodation.id NOT IN (SELECT acc_id FROM reservation JOIN res_status ON res_status_id=res_status.id WHERE (name='Confirmed' OR name='Pending' OR name='Completed') AND ((date_from<=? AND date_until>=?) OR (date_from<=DATE_SUB(?,INTERVAL 1 DAY) AND date_until>=DATE_SUB(?,INTERVAL 1 DAY)) OR (date_from>? AND date_until<DATE_SUB(?,INTERVAL 1 DAY)))) " //kraj zeljenog boravka-1 jer se gledaju noæenja, a u bazi se kao zadnji dan sprema dan prije samog odlaska
 				+ "AND ( ? OR accommodation.id IN (SELECT acc_id FROM prices "
 				+ "WHERE acc_id IN (SELECT acc_id FROM prices WHERE date_from<=? AND date_until>=?) "
 				+ "AND acc_id IN (SELECT acc_id FROM prices WHERE date_from<=DATE_SUB(?,INTERVAL 1 DAY) "
@@ -59,6 +81,21 @@ public class Accomodation {
 		stat_guest_one_comments = connect.prepareStatement("SELECT text, rating, time, name, surname FROM comments JOIN user ON comments.user_id=user.id WHERE acc_id=? ORDER BY time DESC LIMIT 20;");
 		stat_guest_one_rating = connect.prepareStatement("SELECT ROUND(AVG(rating),2) AS rating FROM comments WHERE acc_id=?;");
 		stat_guest_one_prices = connect.prepareStatement("SELECT date_from, DATE_ADD(date_until,INTERVAL 1 DAY) as date_until, price FROM prices WHERE acc_id=? AND YEAR(date_from)=YEAR(NOW()) ORDER BY date_from;");
+		stat_owner_all = connect.prepareStatement("SELECT object.name, accommodation.id, accommodation.name FROM accommodation JOIN object ON accommodation.object_id=object.id "
+				+ "JOIN owner ON object.id=owner.object_id WHERE user_id=? "
+				+ "ORDER BY object.name, accommodation.name;");
+		stat_owner_one = connect.prepareStatement("SELECT * FROM accommodation WHERE id=?;");
+		stat_edit = connect.prepareStatement("UPDATE accommodation SET object_id=?, name=?, category=?, surface=?, has_sea_view=?, "
+				+ "has_air_condition=?, has_sattv=?, has_balcony=?, has_breakfast=?, accepts_pets=?, beach_distance=?, "
+				+ "main_pic=?, `desc`=?, acc_type_id=? WHERE id=?;");
+		stat_owner_one_images = connect.prepareStatement("SELECT acc_data.id, value FROM acc_data JOIN data_type ON data_type_id=data_type.id "
+				+ "WHERE data_type.name='Image' AND acc_id=?;");
+		stat_add_picture = connect.prepareStatement("INSERT INTO acc_data(acc_id, value, data_type_id) VALUES(?, ?,"+DATA_TYPE_IMAGE+");");
+		stat_delete_picture = connect.prepareStatement("DELETE FROM acc_data WHERE id=?;");
+		stat_add = connect.prepareStatement("INSERT INTO accommodation(object_id, name, category, surface, has_sea_view, has_air_condition, has_sattv, has_balcony, has_breakfast, accepts_pets, "
+				+ "beach_distance, main_pic, `desc`, acc_type_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+		stat_delete_prices = connect.prepareStatement("DELETE FROM prices WHERE acc_id=? AND YEAR(date_from)=YEAR(NOW());");
+		stat_add_price = connect.prepareStatement("INSERT INTO prices(acc_id, date_from, date_until, price) VALUES (?, ?, DATE_SUB(?,INTERVAL 1 DAY), ?);");
 	}
 	
 	public String guestAll(String index, String search_params) throws SQLException, JSONException{
@@ -229,6 +266,318 @@ public class Accomodation {
     	}
     	rezultati.close();
     	return odgovor;
+	}
+	
+	public String ownerAll(String session_id) throws SQLException, JSONException{
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	stat_owner_all.setInt(1, id);
+    	ResultSet rezultati = stat_owner_all.executeQuery();
+    	String trenutacni_objekt = "";
+    	JSONArray trenutacni_smijestaji = new JSONArray();
+    	JSONObject trenutacni_smijestaj;
+    	while(rezultati.next()){
+    		trenutacni_smijestaj = new JSONObject();
+    		if(!trenutacni_objekt.equals(rezultati.getString("object.name"))){
+    			if(!trenutacni_objekt.equals("")){
+    				data.put(trenutacni_objekt, trenutacni_smijestaji);
+    			}
+    			trenutacni_objekt = rezultati.getString("object.name");
+    			trenutacni_smijestaji = new JSONArray();
+    		}
+    		trenutacni_smijestaj.put("id", rezultati.getInt("accommodation.id"));
+    		trenutacni_smijestaj.put("name", rezultati.getString("accommodation.name"));
+    		trenutacni_smijestaji.put(trenutacni_smijestaj);
+    	}
+    	data.put(trenutacni_objekt, trenutacni_smijestaji);
+    	main.put("data", data);
+    	
+		return main.toString();
+	}
+	
+	public String all(String session_id) throws SQLException, JSONException{
+		JSONObject main = new JSONObject();
+		JSONArray data = new JSONArray();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	stat_owner_all.setInt(1, id);
+    	ResultSet rezultati = stat_owner_all.executeQuery();
+    	JSONObject accommodation;
+    	while(rezultati.next()){
+    		accommodation = new JSONObject();
+    		accommodation.put("id", rezultati.getInt("accommodation.id"));
+    		accommodation.put("name", rezultati.getString("accommodation.name"));
+    		data.put(accommodation);
+    	}
+    	main.put("data", data);
+    	
+		return main.toString();
+	}
+	
+	public String ownerOne(String session_id, String acc_id) throws SQLException, JSONException{
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	stat_owner_one.setString(1, acc_id);
+    	ResultSet rezultati = stat_owner_one.executeQuery();
+    	rezultati.first();
+    	data.put("id", rezultati.getInt("id"));
+    	data.put("object_id", rezultati.getInt("object_id"));
+    	data.put("name", rezultati.getString("name"));
+    	data.put("category", rezultati.getInt("category"));
+    	data.put("surface", rezultati.getInt("surface"));
+    	data.put("sea", rezultati.getBoolean("has_sea_view"));
+    	data.put("air", rezultati.getBoolean("has_air_condition"));
+    	data.put("sattv", rezultati.getBoolean("has_sattv"));
+    	data.put("balcony", rezultati.getBoolean("has_balcony"));
+    	data.put("breakfast", rezultati.getBoolean("has_breakfast"));
+    	data.put("pets", rezultati.getBoolean("accepts_pets"));
+    	data.put("beach_distance", rezultati.getInt("beach_distance"));
+    	data.put("main_pic", rezultati.getString("main_pic"));
+    	data.put("desc", rezultati.getString("desc"));
+    	data.put("acc_type_id", rezultati.getInt("acc_type_id"));
+    	
+    	stat_owner_one_images.setString(1, acc_id);
+    	rezultati = stat_owner_one_images.executeQuery();
+    	JSONArray images = new JSONArray();
+    	JSONObject image;
+    	while(rezultati.next()){
+    		image = new JSONObject();
+    		image.put("id", rezultati.getInt("acc_data.id"));
+    		image.put("value", rezultati.getString("value"));
+    		images.put(image);
+    	}
+    	data.put("images", images);
+    	
+    	stat_guest_one_prices.setString(1, acc_id);
+    	rezultati = stat_guest_one_prices.executeQuery();
+    	JSONArray prices = new JSONArray();
+    	JSONObject price;
+    	while(rezultati.next()){
+    		price = new JSONObject();
+    		price.put("date_from", rezultati.getString("date_from"));
+    		price.put("date_until", rezultati.getString("date_until"));
+    		price.put("price", rezultati.getInt("price"));
+    		prices.put(price);
+    	}
+    	data.put("prices", prices);
+    	
+    	main.put("data", data);
+    	
+		return main.toString();
+	}
+	
+	public String edit(String session_id, String acc_id, String object_id, String name, String category, String surface, String sea, String air, 
+			String sattv, String balcony, String breakfast, String pets, String beach_distance, String main_pic, String desc, String acc_type_id) throws SQLException, JSONException{
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	if(!Security.areParamsOK(object_id, name, category, sea, air, 
+    			sattv, balcony, breakfast, pets, acc_type_id)){
+    		return Security.prepareErrorJson(12, Security.ERROR12);
+    	}
+    	
+    	stat_edit.setString(1, object_id);
+    	stat_edit.setString(2, name);
+    	stat_edit.setString(3, category);
+    	stat_edit.setString(4, surface);
+    	stat_edit.setBoolean(5, Boolean.parseBoolean(sea));
+    	stat_edit.setBoolean(6, Boolean.parseBoolean(air));
+    	stat_edit.setBoolean(7, Boolean.parseBoolean(sattv));
+    	stat_edit.setBoolean(8, Boolean.parseBoolean(balcony));
+    	stat_edit.setBoolean(9, Boolean.parseBoolean(breakfast));
+    	stat_edit.setBoolean(10, Boolean.parseBoolean(pets));
+    	stat_edit.setString(11, beach_distance);
+    	stat_edit.setString(12, main_pic);
+    	stat_edit.setString(13, desc);
+    	stat_edit.setString(14, acc_type_id);
+    	stat_edit.setString(15, acc_id);
+    	stat_edit.executeUpdate();
+    	
+    	data.put("success", 1);
+    	main.put("data", data);
+    	
+		return main.toString();
+	}
+	
+	public String add(String session_id, String object_id, String name, String category, String surface, String sea, String air, 
+			String sattv, String balcony, String breakfast, String pets, String beach_distance, String main_pic, String desc, String acc_type_id) throws SQLException, JSONException{
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	if(!Security.areParamsOK(object_id, name, category, sea, air, 
+    			sattv, balcony, breakfast, pets, acc_type_id)){
+    		return Security.prepareErrorJson(12, Security.ERROR12);
+    	}
+    	
+    	stat_add.setString(1, object_id);
+    	stat_add.setString(2, name);
+    	stat_add.setString(3, category);
+    	stat_add.setString(4, surface);
+    	stat_add.setBoolean(5, Boolean.parseBoolean(sea));
+    	stat_add.setBoolean(6, Boolean.parseBoolean(air));
+    	stat_add.setBoolean(7, Boolean.parseBoolean(sattv));
+    	stat_add.setBoolean(8, Boolean.parseBoolean(balcony));
+    	stat_add.setBoolean(9, Boolean.parseBoolean(breakfast));
+    	stat_add.setBoolean(10, Boolean.parseBoolean(pets));
+    	stat_add.setString(11, beach_distance);
+    	stat_add.setString(12, main_pic);
+    	stat_add.setString(13, desc);
+    	stat_add.setString(14, acc_type_id);
+    	stat_add.executeUpdate();
+    
+    	
+    	data.put("success", 1);
+    	main.put("data", data);
+    	
+		return main.toString();
+	}
+	
+	public String picturesSave(String session_id, String acc_id, String images) throws SQLException, JSONException{
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	JSONArray slike = new JSONArray(images);
+    	JSONObject slika;
+    	for(int i=0;i<slike.length();i++){
+    		slika = slike.getJSONObject(i);
+    		if(slika.getInt("id") != -1){
+    			continue;
+    		}
+    		stat_add_picture.setString(1, acc_id);
+    		stat_add_picture.setString(2, slika.getString("value"));
+    		stat_add_picture.executeUpdate();
+    	}
+
+    	data.put("success", 1);
+    	main.put("data", data);
+    	
+		return main.toString();
+	}
+	
+	public String picturesDelete(String session_id, String image_id) throws SQLException, JSONException{
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	stat_delete_picture.setString(1, image_id);
+    	stat_delete_picture.executeUpdate();
+    	
+    	data.put("success", 1);
+    	main.put("data", data);
+    	
+		return main.toString();
+	}
+	
+	public String pictureUpload(String session_id, String base64_code) throws JSONException{
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	base64_code = base64_code.replaceAll("\\ ", "+");
+    	Base64.Decoder decoder = Base64.getDecoder();
+    	byte[] picture = null;
+		try {
+			picture = decoder.decode(base64_code);
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+    	Date t = new Date();
+    	String file_name = null;
+    	try {
+    		file_name = "photos/"+Security.sha1(session_id+t.getTime())+".jpg";
+    		OutputStream out = new FileOutputStream(Server.PATH+file_name);
+			out.write(picture);
+	    	out.close();
+	    	BufferedImage img = new BufferedImage(400, 300, BufferedImage.TYPE_INT_RGB);
+	    	img.createGraphics().drawImage(ImageIO.read(new File(Server.PATH+file_name)).getScaledInstance(400, 300, Image.SCALE_SMOOTH),0,0,null);
+	    	ImageIO.write(img, "jpg", new File(Server.PATH+"small/"+file_name));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    	data.put("file", file_name);
+    	main.put("data", data);
+    	
+		return main.toString();
+	}
+	
+	public String pricesAdd(String session_id, String acc_id, String prices) throws SQLException, JSONException{
+		JSONObject main = new JSONObject();
+		JSONObject data = new JSONObject();
+		
+		int id = sec.getSession(session_id);
+    	if(id==-1){
+    		return Security.prepareErrorJson(1,Security.ERROR1);
+    	}
+    	sec.updateSession(session_id);
+    	
+    	stat_delete_prices.setString(1, acc_id);
+    	stat_delete_prices.executeUpdate();
+    	
+    	JSONArray cijene = new JSONArray(prices);
+    	JSONObject cijena;
+    	for(int i=0;i<cijene.length();i++){
+    		cijena = cijene.getJSONObject(i);
+    		if(!Security.areParamsOK(cijena.getString("date_from"), cijena.getString("date_until"), cijena.getString("price"))){
+        		return Security.prepareErrorJson(12, Security.ERROR12);
+        	}
+    		stat_add_price.setString(1, acc_id);
+    		stat_add_price.setString(2, cijena.getString("date_from"));
+    		stat_add_price.setString(3, cijena.getString("date_until"));
+    		stat_add_price.setString(4, cijena.getString("price"));
+    		stat_add_price.executeUpdate();
+    	}
+    	
+    	data.put("success", 1);
+    	main.put("data", data);
+    	
+		return main.toString();
 	}
 	
 	HashMap<String,String> prepareSearchParams(String params) throws JSONException{

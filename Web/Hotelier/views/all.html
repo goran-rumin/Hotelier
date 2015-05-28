@@ -122,7 +122,7 @@
 	</div>
 </div>
 <script>
-	$("#free_from").datepicker({
+	/*$("#free_from").datepicker({
       changeMonth: true,
       changeYear: true,
       minDate: new Date(),
@@ -135,7 +135,19 @@
       minDate: new Date(),
       firstDay: 1,
       dateFormat: "yy-mm-dd"
-    });
+    });*/
+    $('#free_from').datetimepicker({
+		timepicker:false,
+		closeOnDateSelect:true,
+		minDate:0,
+		format:'Y-m-d',
+	});
+	$('#free_until').datetimepicker({
+		timepicker:false,
+		closeOnDateSelect:true,
+		minDate:0,
+		format:'Y-m-d',
+	});
     $(function() {
     	$("#dialog").dialog({
     		autoOpen: false,
