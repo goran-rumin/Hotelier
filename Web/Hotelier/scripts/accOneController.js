@@ -49,7 +49,7 @@ apl_accOne.controller('accOneController', function ($scope, $routeParams, $cooki
 						tjedan=[];
 					}
 					if(u_rezervaciji){
-						dan.class = "danger";
+						dan.class = "zauzeto";
 						var a = $scope.convertDate(rezervacije[index_rez].date_until);
 						var b = date.toLocaleDateString();
 						if(a == b){
@@ -70,7 +70,7 @@ apl_accOne.controller('accOneController', function ($scope, $routeParams, $cooki
 							if(a == b){
 								u_rezervaciji = true;
 								if(dan.left!=null){
-									dan.class = "danger";
+									dan.class = "zauzeto";
 									dan.left = null;
 								}
 								else{

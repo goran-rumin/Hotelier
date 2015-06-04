@@ -76,6 +76,7 @@ public class Server {
 		Comment comment = new Comment(connect, sec);
 		Reservation reservation = new Reservation(connect, sec);
 		Object object = new Object(connect, sec);
+		Report report = new Report(connect, sec);
 		
         get("/", (request, response) -> {
             return "Main site";
@@ -376,6 +377,18 @@ public class Server {
             return atype.all();
         });
        	
+       	get("/atype/add", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/atype/add", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+        	String name = request.queryParams("name");
+        	String min = request.queryParams("min");
+        	String max = request.queryParams("max");
+            return atype.add(session_id, name, min, max);
+        });
+       	
       //COMMENT dio
        	get("/comment/all", (request, response) -> {
         	return Security.ERROR;
@@ -638,6 +651,75 @@ public class Server {
        		String user_id = request.queryParams("user_id");
        		String percentage = request.queryParams("percentage");
             return object.deleteOwner(session_id, user_id, object_id, percentage);
+        });
+       	
+       	
+      //REPORT dio
+       	get("/report/arrivals", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/report/arrivals", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String date_from = request.queryParams("date_from");
+       		String date_until = request.queryParams("date_until");
+            return report.arrivals(session_id, date_from, date_until);
+        });
+       	
+       	get("/report/revenue", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/report/revenue", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String date_from = request.queryParams("date_from");
+       		String date_until = request.queryParams("date_until");
+            return report.revenue(session_id, date_from, date_until);
+        });
+       	
+       	get("/report/guests", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/report/guests", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+            return report.guests(session_id);
+        });
+       	
+       	get("/report/guests/add", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/report/guests/add", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String name = request.queryParams("name");
+       		String surname = request.queryParams("surname");
+       		String country_id = request.queryParams("country_id");
+       		String doc_num = request.queryParams("doc_num");
+       		String email = request.queryParams("email");
+       		String date_birth = request.queryParams("date_birth");
+            return report.addGuest(session_id, name, surname, country_id, doc_num, email, date_birth);
+        });
+       	
+       	get("/report/guestlist", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/report/guestlist", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+            return report.guestList(session_id);
+        });
+       	
+       	get("/report/guestlist/add", (request, response) -> {
+        	return Security.ERROR;
+        });
+        
+       	post("/report/guestlist/add", (request, response) -> {
+       		String session_id = request.queryParams("session_id");
+       		String guest_id = request.queryParams("guest_id");
+       		String date_from = request.queryParams("date_from");
+       		String date_until = request.queryParams("date_until");
+            return report.guestListAdd(session_id, guest_id, date_from, date_until);
         });
     }
 	

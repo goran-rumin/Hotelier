@@ -52,3 +52,7 @@ body {
 .pointer {
     cursor: pointer;
 }
+
+.zauzeto {
+    background-color: #9c99ff;
+}

@@ -1,0 +1,195 @@
+<div class="row">
+	<div class="col-md-2 panel">
+		<h3>Reports</h3><hr/>
+		<div class="list-group">
+  			<a id="rep1" href="" class="list-group-item" ng-click="rep_type='rep1'; params={}">
+  				<h4>List of arrivals</h4><br/>
+  			</a>
+  			<a id="rep2" href="" class="list-group-item" ng-click="rep_type='rep2'; params={}">
+  				<h4>Revenue per accommodation</h4><br/>
+  			</a>
+  			<a id="rep3" href="" class="list-group-item" ng-click="rep_type='rep3'; params={}">
+  				<h4>Guest list</h4><br/>
+  			</a>
+		</div>
+	</div>
+	<div class="col-md-10 panel">
+		<div id="repc1" ng-show="rep_type=='rep1'">
+			<h3>List of arrivals</h3><hr/>
+			<form class="form-inline" role="form">
+				<div class="form-group">
+  					<label for="date_from">Date from*:</label>
+      				<input id="date_from" type="date" class="form-control datum" ng-model="params.date_from">
+  				</div>
+  				<div class="form-group">
+  					<label for="date_until">Date until*:</label>
+      				<input id="date_until" type="date" class="form-control datum" ng-model="params.date_until">
+  				</div>
+  				<div class="form-group"> 
+      				<button id="submit" class="btn btn-primary" ng-click="getArrivals()">Generate</button>
+  				</div>
+  			</form>
+  			<hr/>
+  			<table class="table table-bordered">
+  				<thead class="bg-primary">
+  					<tr>
+  						<td>Reservation No.</td>
+  						<td>Acc. name</td>
+  						<td>Name</td>
+  						<td>Surname</td>
+  						<td>Country</td>
+  						<td>Date from</td>
+  						<td>Date until</td>
+  						<td>Number of adults</td>
+  						<td>Number od children</td>
+  						<td>Price per day (€)</td>
+  						<td>Discount (%)</td>
+  						<td>Advance money (€)</td>
+  						<td>Remark</td>
+  					</tr>
+  				</thead>
+  				<tbody>
+  					<tr ng-repeat="line in report1">
+  						<td>{{line.id}}</td>
+  						<td>{{line.acc_name}}</td>
+  						<td>{{line.name}}</td>
+  						<td>{{line.surname}}</td>
+  						<td>{{line.country}}</td>
+  						<td>{{convertDate(line.date_from)}}</td>
+  						<td>{{convertDate(line.date_until)}}</td>
+  						<td>{{line.ppl_adults}}</td>
+  						<td>{{line.ppl_children}}</td>
+  						<td>{{line.price}}</td>
+  						<td>{{line.discount}}</td>
+  						<td>{{line.advmoney}}</td>
+  						<td>{{line.remark}}</td>
+  					</tr>
+  				</tbody>
+  			</table>
+		</div>
+		<div id="repc2" ng-show="rep_type=='rep2'">
+			<h3>Revenue per accommodation</h3><hr/>
+			<form class="form-inline" role="form">
+				<div class="form-group">
+  					<label for="date_from">Date from*:</label>
+      				<input id="date_from" type="date" class="form-control datum" ng-model="params.date_from">
+  				</div>
+  				<div class="form-group">
+  					<label for="date_until">Date until*:</label>
+      				<input id="date_until" type="date" class="form-control datum" ng-model="params.date_until">
+  				</div>
+  				<div class="form-group"> 
+      				<button id="submit" class="btn btn-primary" ng-click="getRevenue()">Generate</button>
+  				</div>
+  			</form>
+  			<p>The revenue will be calculated for reservations that arrived within selected date range.</p>
+  			<hr/>
+  			<div id="chart_div"></div>
+		</div>
+		<div id="repc3" ng-show="rep_type=='rep3'">
+			<h3>Guests</h3><hr/>
+			<div class="row">
+				<div class="col-md-2">
+					<form class="form-horizontal" role="form">
+						<div class="form-group">
+    						<label class="control-label col-sm-2" for="guests">Guests:</label>
+    						<div class="col-sm-10">
+      							<select id="guests" class="form-control" ng-model="guest" ng-options="item as (item.name+' '+item.surname) for item in guests">
+		            			</select>
+    						</div>
+  						</div>
+  					</form>
+  					<br/>
+  					<button id="submit" class="btn btn-success" ng-click="guest={}" style="margin-top: 10px">Add new guest</button>
+  					<button id="submit" class="btn btn-primary" ng-click="addGuest()" ng-disabled="guest.id!=null" style="margin-top: 10px">Save guest</button>
+				</div>
+				<div class="col-md-10">
+					<form class="form-horizontal" role="form">
+						<div class="form-group">
+    						<label class="control-label col-sm-2" for="name">Name:</label>
+    						<div class="col-sm-10">
+      							<input id="name" type="text" class="form-control" maxlength="50" ng-model="guest.name" ng-disabled="guest.id!=null">
+    						</div>
+  						</div>
+  						<div class="form-group">
+    						<label class="control-label col-sm-2" for="surname">Surname:</label>
+		    				<div class="col-sm-10">
+		      					<input id="surname" type="text" class="form-control" maxlength="50" ng-model="guest.surname" ng-disabled="guest.id!=null">
+		    				</div>
+		  				</div>
+		  				<div class="form-group">
+		    				<label class="control-label col-sm-2" for="doc_num">Document number:</label>
+		    				<div class="col-sm-10">
+		      					<input id="duc_num" type="text" class="form-control" maxlength="50" ng-model="guest.doc_num" ng-disabled="guest.id!=null">
+		    				</div>
+		  				</div>
+		  				<div class="form-group">
+		    				<label class="control-label col-sm-2" for="country">Country:</label>
+		    				<div class="col-sm-10">
+		      					<select id="country" class="form-control" ng-model="guest.country_id" ng-options="item.id as item.name for item in countries" ng-disabled="guest.id!=null">
+		            			</select>
+		    				</div>
+		  				</div>
+		  				<div class="form-group">
+		    				<label class="control-label col-sm-2" for="email">E-mail:</label>
+		    				<div class="col-sm-10">
+		      					<input id="email" type="text" class="form-control" maxlength="100" ng-model="guest.email" ng-disabled="guest.id!=null">
+		    				</div>
+		  				</div>
+		  				<div class="form-group">
+		    				<label class="control-label col-sm-2" for="date_birth">Date of birth:</label>
+		    				<div class="col-sm-10">
+		      					<input id="date_birth" type="text" class="form-control datum" ng-model="guest.date_birth" ng-disabled="guest.id!=null">
+		    				</div>
+		  				</div>
+		  			</form>
+  				</div>
+  			</div>
+  			<hr/>
+  			<h3>Guest list</h3><hr/>
+  			<form class="form-inline" role="form">
+  				<div class="form-group">
+  					<label for="guests">Guest*:</label>
+      				<select id="guests" class="form-control" ng-model="params.guest_id" ng-options="item.id as (item.name+' '+item.surname) for item in guests">
+		            </select>
+  				</div>
+				<div class="form-group">
+  					<label for="date_from">Date from*:</label>
+      				<input id="date_from" type="date" class="form-control datum" ng-model="params.date_from">
+  				</div>
+  				<div class="form-group">
+  					<label for="date_until">Date until*:</label>
+      				<input id="date_until" type="date" class="form-control datum" ng-model="params.date_until">
+  				</div>
+  				<div class="form-group"> 
+      				<button id="submit" class="btn btn-primary" ng-click="saveList()">Add to guest list</button>
+  				</div>
+  			</form>
+  			<br/>
+  			<table class="table table-bordered">
+  				<thead class="bg-primary">
+  					<tr>
+  						<td>Guest</td>
+  						<td>Date from</td>
+  						<td>Date until</td>
+  					</tr>
+  				</thead>
+  				<tbody>
+  					<tr ng-repeat="item in report3">
+  						<td>{{item.name}}</td>
+  						<td>{{convertDate(item.date_from)}}</td>
+  						<td>{{convertDate(item.date_until)}}</td>
+  					</tr>
+  				</tbody>
+  			</table>
+		</div>
+	</div>
+</div>
+<script>
+	$('.datum').datetimepicker({
+		timepicker:false,
+		closeOnDateSelect:true,
+		dayOfWeekStart: 1,
+		format:'Y-m-d',
+	});
+</script>

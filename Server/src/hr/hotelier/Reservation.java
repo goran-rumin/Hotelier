@@ -101,18 +101,18 @@ public class Reservation {
 				+ "AND (date_from IS NULL OR (date_from>=? AND date_from<=?) OR (date_until>=? AND date_until<=?)) "
 				+ "AND (res_status.name IS NULL OR res_status.name='Canceled by guest' OR res_status.name='Canceled by owner' OR res_status.name='Validity ended') "
 				+ "ORDER BY object.name, accommodation.name, date_from;");
-		stat_reservation_one = connect.prepareStatement("SELECT reservation.id, user.name, user.surname, country.name, phone, email, acc_id, date_from, date_until, "
+		stat_reservation_one = connect.prepareStatement("SELECT reservation.id, user.name, user.surname, country.name, phone, email, acc_id, date_from, DATE_ADD(date_until,INTERVAL 1 DAY) AS date_until, "
 				+ "ppl_adults, ppl_children, price, discount, advmoney, remark, validity_date, res_status.name "
 				+ "FROM reservation "
 				+ "JOIN res_status ON res_status_id=res_status.id "
 				+ "JOIN user ON reservation.user_id=user.id "
 				+ "JOIN country ON user.country_id=country.id "
 				+ "WHERE reservation.id=?;");
-		stat_edit = connect.prepareStatement("UPDATE reservation SET acc_id=?, date_from=?, date_until=?, ppl_adults=?, ppl_children=?, price=?, discount=?, advmoney=?, "
+		stat_edit = connect.prepareStatement("UPDATE reservation SET acc_id=?, date_from=?, date_until=DATE_SUB(?,INTERVAL 1 DAY), ppl_adults=?, ppl_children=?, price=?, discount=?, advmoney=?, "
 				+ "remark=?, validity_date=? WHERE id=?;");
 		stat_get_log = connect.prepareStatement("SELECT time, `desc` FROM reservation_log WHERE res_id=? ORDER BY time DESC;");
 		stat_owner_add = connect.prepareStatement("INSERT INTO reservation(acc_id, user_id, date_from, date_until, ppl_adults, ppl_children, price, discount, advmoney, remark, res_status_id) "
-				+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1);");
+				+ "VALUES (?, ?, ?, DATE_SUB(?,INTERVAL 1 DAY), ?, ?, ?, ?, ?, ?, 1);");
 		stat_cleanup_expired = connect.prepareStatement("UPDATE reservation SET res_status_id="+RES_STATUS_TIME_OUT+" WHERE validity_date<NOW();");
 		stat_cleanup_completed = connect.prepareStatement("UPDATE reservation SET res_status_id="+RES_STATUS_COMPLETED+" WHERE date_until<NOW();");
 		
@@ -220,7 +220,6 @@ public class Reservation {
     		stat_add_reservation.setString(5, ppl_adults);
     		stat_add_reservation.setString(6, ppl_children);
     		stat_add_reservation.setString(7, rezultati.getString("price"));
-    		stat_add_reservation.setInt(8, RES_STATUS_PENDING);
     		stat_add_reservation.executeUpdate();
     		
     		stat_reservation_id.setString(1, acc_id);
@@ -484,7 +483,7 @@ public class Reservation {
     	}
     	sec.updateSession(session_id);
     	
-    	if(!Security.areParamsOK(res_id, acc_id, date_from, date_until, ppl_adults, ppl_children, price, validity_date)){
+    	if(!Security.areParamsOK(res_id, acc_id, date_from, date_until, ppl_adults, ppl_children, price)){
     		return Security.prepareErrorJson(12, Security.ERROR12);
     	}
     	
@@ -521,7 +520,7 @@ public class Reservation {
     	if(!remark.equals(rezultati.getString("remark")))
     		edit_log+="Remark "+rezultati.getString("remark")+"->"+remark+"\n";
     	
-    	if(!validity_date.equals(rezultati.getString("validity_date")))
+    	if(!(validity_date+".0").equals(rezultati.getString("validity_date")))
     		edit_log+="Validity date "+rezultati.getString("validity_date")+"->"+validity_date+"\n";
     	
     	stat_reservation_log.setString(2, edit_log);
@@ -536,7 +535,10 @@ public class Reservation {
     	stat_edit.setString(7, discount);
     	stat_edit.setString(8, advmoney);
     	stat_edit.setString(9, remark);
-    	stat_edit.setString(10, validity_date);
+    	if(validity_date.equals("NULL"))
+    		stat_edit.setString(10, null);
+    	else
+    		stat_edit.setString(10, validity_date);
     	stat_edit.setString(11, res_id);
     	stat_edit.executeUpdate();
     	

@@ -79,6 +79,7 @@
   			</div>
   			<div class="form-group">
   				<label for="acc_type">Accommodation type*:</label>
+  				<a href="" id="add_type" ng-click="addType()">Add new accommodation type</a>
       			<select id="acc_type" class="form-control" ng-model="accommodation.acc_type_id" ng-options="item.id as item.name for item in atypes">
             	</select>
   			</div>
@@ -162,6 +163,25 @@
 		<br/>
 	</div>
 </div>
+<div id="dialog_addtype">
+	<span>Enter name for accommodation type and minimum and maximum number of people that can fit inside accommodation of this type:</span><br/>
+	<label for="type_name">Name:</label>
+	<input id="type_name" type="text" class="form-control" maxlength="30">
+	<label for="people_min">Minimum number of people:</label>
+	<input id="people_min" type="number" class="form-control" min="0">
+	<label for="people_max">Maximum number of people:</label>
+	<input id="people_max" type="number" class="form-control" min="1">
+	<br/>
+	<button id="saveType" class="btn btn-primary">Save</button>
+</div>
 <script>
     $("a.galerija").fancybox();
+    $(function() {
+    	$("#dialog_addtype").dialog({
+    		autoOpen: false,
+    		draggable: false,
+    		width: 600,
+    		height: 400
+    	});
+    });
 </script>

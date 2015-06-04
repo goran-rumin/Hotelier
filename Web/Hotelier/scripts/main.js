@@ -1,4 +1,4 @@
-var aplikacija = angular.module('hotelier', ['ngRoute', 'ngCookies', 'naif.base64', 'register', 'userdata', 'accm', 'accm_one', 'myreservations', 'objects', 'accm_owner', 'res_owner']);
+var aplikacija = angular.module('hotelier', ['ngRoute', 'ngCookies', 'naif.base64', 'register', 'userdata', 'accm', 'accm_one', 'myreservations', 'objects', 'accm_owner', 'res_owner', 'reports']);
 
 var PATH = "http://localhost:4567/";
 var DOMAIN = "http://127.0.0.1:8020/Hotelier/";
@@ -40,6 +40,10 @@ aplikacija.config(['$routeProvider',
       when('/owner/reservations', {
         templateUrl: 'views/reservationsowner.html',
         controller: 'reservationsOwnerController'
+      }).
+      when('/owner/reports', {
+        templateUrl: 'views/reports.html',
+        controller: 'reportsController'
       }).
       otherwise({
         redirectTo: '/'

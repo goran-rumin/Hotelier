@@ -4,8 +4,6 @@ var apl_resOwner = angular.module('res_owner', ['ngCookies']);
 apl_resOwner.controller('reservationsOwnerController', function($scope, $cookieStore){
 	$scope.kolacic = $cookieStore.get('SESSION');
 	var position = 0;
-	$scope.class_p = 'disabled';
-	$scope.class_n = '';
 	if($scope.kolacic==null){
 		location.href = "#/";
 		return;
@@ -22,14 +20,7 @@ apl_resOwner.controller('reservationsOwnerController', function($scope, $cookieS
 	};
 	
 	$scope.previous = function(){
-		if(position==0){
-			$scope.class_p = 'disabled';
-			return;
-		}
 		position-=1;
-		if(position==0){
-			$scope.class_p = 'disabled';
-		}
 		$scope.generate_dates(position);
 		$scope.getReservations();
 		$scope.getReservationsCanceled();
@@ -37,7 +28,6 @@ apl_resOwner.controller('reservationsOwnerController', function($scope, $cookieS
 	
 	$scope.next = function(){
 		position+=1;
-		$scope.class_p = '';
 		$scope.generate_dates(position);
 		$scope.getReservations();
 		$scope.getReservationsCanceled();
@@ -77,7 +67,7 @@ apl_resOwner.controller('reservationsOwnerController', function($scope, $cookieS
 									$scope.reservations[reservations[res_current].id] = temp;
 								}
 								if(reservations[res_current].type=='Confirmed' || reservations[res_current].type=='Completed'){
-									rezervacija.class = "danger";
+									rezervacija.class = "zauzeto";
 								}
 								else if(reservations[res_current].type=='Pending'){
 									rezervacija.class = "warning";
@@ -114,7 +104,7 @@ apl_resOwner.controller('reservationsOwnerController', function($scope, $cookieS
 								
 								if(reservations[res_current].date_from_draw.localeCompare(reservations[res_current].date_from)>0){
 									if(reservations[res_current].type=='Confirmed' || reservations[res_current].type=='Completed'){
-										rezervacija.class = "danger";
+										rezervacija.class = "zauzeto";
 									}
 									else if(reservations[res_current].type=='Pending'){
 										rezervacija.class = "warning";
@@ -212,6 +202,9 @@ apl_resOwner.controller('reservationsOwnerController', function($scope, $cookieS
 				if($scope.reservation.validity_date!=null){
 					$scope.reservation.validity_date = $scope.reservation.validity_date.substring(0, $scope.reservation.validity_date.length-2);
 				}
+				else{
+					$scope.reservation.validity_date = 'NULL';
+				}
 			}
 			getLog(id);
 			$scope.$apply();
@@ -256,7 +249,7 @@ apl_resOwner.controller('reservationsOwnerController', function($scope, $cookieS
 		$scope.reservation = {};
 		$scope.reservation.discount = 0;
 		$scope.reservation.advmoney = 0;
-		$scope.reservation.validity_date = '';
+		$scope.reservation.validity_date = 'NULL';
 		$scope.reservation.remark = '';
 		$scope.cannot_edit = false;
 	};

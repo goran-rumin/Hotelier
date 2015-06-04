@@ -41,6 +41,7 @@ apl_accOwner.controller('accOwnerController', function($scope, $cookieStore){
 			$('.datum').datetimepicker({
 				timepicker:false,
 				closeOnDateSelect:true,
+				dayOfWeekStart: 1,
 				format:'Y-m-d',
 			});
 		});
@@ -270,6 +271,31 @@ apl_accOwner.controller('accOwnerController', function($scope, $cookieStore){
 			$scope.$apply();
 		});
 	};
+	
+	$scope.addType = function(){
+		$("#dialog_addtype").dialog("open");
+	};
+	
+	$("#saveType").click(function(){
+		var name = $('#type_name').val();
+		var ppl_min = $('#people_min').val();
+		var ppl_max = $('#people_max').val();
+		if(isNaN(ppl_min) || isNaN(ppl_max) || name.length==0){
+			alert('Please enter correct data');
+			return;
+		}
+		$.post( PATH+'atype/add', 'session_id='+$scope.kolacic+'&name='+name+'&min='+ppl_min+'&max='+ppl_max, function( data ) {
+			var main_json = angular.fromJson(data);
+			if(main_json.hasOwnProperty('error')){
+				alert('Error '+main_json.error.id+' - '+main_json.error.description);
+			}
+			else{
+				$("#dialog_addtype").dialog("close");
+			}
+			$scope.$apply();
+			$scope.getAtypes();
+		});
+	});
 	
 	$scope.getObjects($scope.kolacic);
 	$scope.getAtypes();

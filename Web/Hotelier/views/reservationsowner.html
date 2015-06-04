@@ -8,8 +8,8 @@
 				<div align="right">
 					<nav>
   						<ul class="pager">
-    						<li class="{{class_p}}"><a href="" ng-click="previous()">Previous</a></li>
-    						<li class="{{class_n}}"><a href="" ng-click="next()">Next</a></li>
+    						<li><a href="" ng-click="previous()">Previous</a></li>
+    						<li><a href="" ng-click="next()">Next</a></li>
   						</ul>
 					</nav>
 				</div>
@@ -37,10 +37,10 @@
 					{{accommodation}}
 				</td>
 				<td class="{{reservation.class}} {{reservation.id!=null ? 'pointer' : ''}}" height="40px" ng-repeat="reservation in reservations" style="padding: 0" ng-mouseenter="showData($event)" ng-mouseleave="hideData($event)" ng-click="getReservation(reservation.id, false)" data-id="{{reservation.id}}">
-					<img ng-src="http://localhost:4567/photos/calendar.png" width="50%" height="100%" style="float:left" ng-show="reservation.left_d!=null"/>
-					<img ng-src="http://localhost:4567/photos/calendar.png" width="50%" height="100%" style="float:right" ng-show="reservation.right_d!=null"/>
-					<img ng-src="http://localhost:4567/photos/calendar_pending.png" width="50%" height="100%" style="float:left" ng-show="reservation.left_w!=null"/>
-					<img ng-src="http://localhost:4567/photos/calendar_pending.png" width="50%" height="100%" style="float:right" ng-show="reservation.right_w!=null"/>
+					<img ng-src="http://localhost:4567/photos/calendar.png" width="49%" height="100%" style="float:left" ng-show="reservation.left_d!=null"/>
+					<img ng-src="http://localhost:4567/photos/calendar.png" width="49%" height="100%" style="float:right" ng-show="reservation.right_d!=null"/>
+					<img ng-src="http://localhost:4567/photos/calendar_pending.png" width="49%" height="100%" style="float:left" ng-show="reservation.left_w!=null"/>
+					<img ng-src="http://localhost:4567/photos/calendar_pending.png" width="49%" height="100%" style="float:right" ng-show="reservation.right_w!=null"/>
 				</td>
 			</tr>
 		</table>
@@ -193,18 +193,21 @@
 <script>
 	$('#validity_date').datetimepicker({
 		closeOnDateSelect:true,
+		dayOfWeekStart: 1,
 		minDate:0,
 		format:'Y-m-d H:i:s',
 	});
 	$('#date_from').datetimepicker({
 		timepicker:false,
 		closeOnDateSelect:true,
+		dayOfWeekStart: 1,
 		minDate:0,
 		format:'Y-m-d',
 	});
 	$('#date_until').datetimepicker({
 		timepicker:false,
 		closeOnDateSelect:true,
+		dayOfWeekStart: 1,
 		minDate:0,
 		format:'Y-m-d',
 	});
